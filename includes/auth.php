@@ -268,20 +268,17 @@ function attempt_login(string $identifier, string $password): array
     // form cannot be used to discover which usernames exist.
     $hash = $user['password_hash'] ?? '$2y$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidinv';
 
-    if (!password_verify($password, $hash) || $user === null) {
+    $passwordValid = password_verify($password, $hash);
+
+    // Check the account status only after password verification, but keep the
+    // response generic. This preserves the existing timing defense and avoids
+    // revealing whether a matching account is inactive.
+    if (!$passwordValid || $user === null || $user['status'] !== 'active') {
         record_failed_login();
 
         return [
             'ok'      => false,
             'message' => 'Those credentials do not match an account.',
-            'user'    => null,
-        ];
-    }
-
-    if ($user['status'] !== 'active') {
-        return [
-            'ok'      => false,
-            'message' => 'This account has been deactivated. Contact an administrator.',
             'user'    => null,
         ];
     }
