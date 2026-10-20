@@ -325,6 +325,7 @@ UMS/
 - **SQL Injection**: every statement prepared + parameter-bound
 - **CSRF**: state-changing forms carry a token
 - **CSP**: `Content-Security-Policy` set — no inline handlers (filters use `data-auto-submit`)
+- **Browser isolation**: HSTS is sent over HTTPS; COOP and CORP are restricted to same-origin
 - **Brute-Force Protection**: 5 failed logins → 15-minute cool-down
 - **Timing Attack Resistance**: unknown usernames still run `password_verify()` against dummy hash
 

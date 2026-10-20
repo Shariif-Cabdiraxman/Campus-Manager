@@ -104,6 +104,16 @@ jobs:
             echo "CSP header missing from init.php"
             exit 1
           fi
+          for header in "Strict-Transport-Security" "Cross-Origin-Opener-Policy" "Cross-Origin-Resource-Policy"; do
+            if ! grep -q "$header" includes/init.php; then
+              echo "$header missing from init.php"
+              exit 1
+            fi
+          done
+          if ! grep -q "object-src 'none'" includes/init.php || ! grep -q "style-src 'self' 'unsafe-inline'" includes/init.php; then
+            echo "CSP does not block plugins or preserve inline styles"
+            exit 1
+          fi
 
       - name: Check prepared statements usage
         run: |

@@ -34,14 +34,20 @@ if (!headers_sent()) {
     header('X-Frame-Options: DENY');
     header('Referrer-Policy: same-origin');
     header('Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()');
+    if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
+        header('Strict-Transport-Security: max-age=31536000');
+    }
+    header('Cross-Origin-Opener-Policy: same-origin');
+    header('Cross-Origin-Resource-Policy: same-origin');
     header('Content-Security-Policy: ' . implode('; ', [
         "default-src 'self'",
         "base-uri 'self'",
         "form-action 'self'",
         "frame-ancestors 'none'",
+        "object-src 'none'",
         "img-src 'self' data:",
         "font-src 'self'",
-        // Style attributes are used for chart bar heights and the like.
+        // Inline styles are used for chart bar heights and layout details.
         "style-src 'self' 'unsafe-inline'",
         "script-src 'self'",
     ]));
