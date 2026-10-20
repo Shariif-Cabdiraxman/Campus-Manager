@@ -3,8 +3,8 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.0%2B-777BB4?logo=php&logoColor=white)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-MySQL%20%7C%20MariaDB-4479A1?logo=mysql&logoColor=white)](https://mariadb.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-218%20passing-brightgreen)](tools/)
-[![Architecture](https://img.shields.io/badge/Architecture-Modular%20MVC-blueviolet)](#architecture)
+[![Tests](https://img.shields.io/badge/Assertions-218%20via%20smoke%20scripts-brightgreen)](tools/)
+[![Architecture](https://img.shields.io/badge/Architecture-Modular%20pages%20%2B%20shared%20includes-blueviolet)](#architecture)
 [![Mobile](https://img.shields.io/badge/Mobile-Responsive%20%2B%20PWA-orange)](#on-a-phone)
 [![Security](https://img.shields.io/badge/Security-Hardened-red)](#security)
 
@@ -35,13 +35,12 @@ cp config/database.example.php config/database.php
 # http://localhost/UMS/
 ```
 
-**Demo accounts** (printed on the login page when `APP_DEMO_MODE=1`):
+**Demo accounts** (printed on the login page when demo mode is enabled, which is the default):
 
 | Username | Password | Role | Access |
 |----------|----------|------|--------|
 | `admin` | `Admin@123` | admin | All modules |
 | `registrar` | `Registrar@123` | registrar | Students, courses, enrolments, grades, announcements |
-| `admissions` | `Registrar@123` | registrar | Same as registrar |
 
 ---
 
@@ -56,7 +55,7 @@ cp config/database.example.php config/database.php
 | **Data Integrity** | FK enforcement, guarded deletes with human-readable errors |
 | **Mobile-First** | Responsive desktop + dedicated phone shell + PWA installable |
 | **Zero-Dependency** | No Composer, no npm, no build — just PHP + MySQL |
-| **Tested** | 218 automated smoke checks (86 desktop + 132 mobile) |
+| **Tested locally** | 218 assertions run by the smoke scripts (86 desktop + 132 mobile) |
 
 ---
 
@@ -104,11 +103,11 @@ cp config/database.example.php config/database.php
 
 | Component | Version |
 |-----------|---------|
-| **PHP** | 8.0+ with `mysqli` extension |
+| **Supported PHP** | 8.0 or newer with `mysqli` extension |
 | **Database** | MySQL 8.x or MariaDB 10.4+ |
 | **Web Server** | Apache (mod_rewrite not required), Nginx, or any PHP-capable server |
 
-Developed and tested on **XAMPP** (PHP 8.0.30, MariaDB, Apache on port 80).
+Developed and tested on **XAMPP** (PHP 8.0.30, MariaDB, Apache on port 80). GitHub Actions currently uses PHP 8.2 for its checks; that CI version is not the minimum supported version.
 
 ---
 
@@ -169,7 +168,6 @@ A fresh import contains enough data to exercise every screen, including the dele
 |----------|----------|------|------|
 | `admin` | `Admin@123` | admin | Every module |
 | `registrar` | `Registrar@123` | registrar | Students, courses, enrolments, grades, announcements |
-| `admissions` | `Registrar@123` | registrar | Same as registrar |
 
 ### Permission Matrix
 
@@ -188,8 +186,11 @@ A fresh import contains enough data to exercise every screen, including the dele
 Permissions are checked server-side in `require_permission()` at the top of every write endpoint — editing the URL or posting directly cannot bypass the interface.
 
 ### Debug / Demo Mode
+
+Demo mode is enabled by default and shows the seeded demo credentials on the login page. Disable it before deploying:
+
 ```powershell
-# Disable demo hint block on login page
+# Disable demo mode and its login-page hint
 setx APP_DEMO_MODE 0    # restart Apache
 
 # Enable debug exceptions (local only!)
@@ -265,7 +266,7 @@ Verifies phone-width requests get mobile shell, desktop requests don't, every sc
 
 **Current: 132 checks, 0 failures.**
 
-Both suites create and remove their own rows — a green run leaves the database exactly as it found it. They exit non-zero on failure, so they work as CI steps.
+Both suites create and remove their own rows — a green run leaves the database exactly as it found it. They exit non-zero on failure. The 218 assertions are run by these local PowerShell scripts; the current GitHub Actions smoke-test steps are placeholders and do not execute them.
 
 ### Manual Probe
 ```powershell
@@ -293,7 +294,7 @@ UMS/
 ├── database.sql              # Schema, constraints, seed data
 ├── manifest.webmanifest      # PWA manifest (phone build)
 ├── sw.js                     # Service worker (static assets only)
-├── assets/                   # 1 stylesheet, 3 scripts, no build step
+├── assets/                   # 2 stylesheets, 4 scripts, no build step
 ├── config/                   # app.php + gitignored database.php
 ├── includes/                 # Shared layer
 │   ├── init.php              # Bootstrap, error handling, output buffering
