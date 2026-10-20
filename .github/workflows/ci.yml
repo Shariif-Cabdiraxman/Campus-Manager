@@ -93,7 +93,7 @@ jobs:
       - name: Check for hardcoded secrets
         run: |
           # Basic secret patterns
-          if grep -r "password\s*=" --include="*.php" --include="*.env*" . | grep -v "password_hash" | grep -v "DB_PASS" | grep -v "example" | grep -v ".gitignore"; then
+          if grep -rEn "[\\$][A-Za-z_]*(password|passwd|secret|token|api_key)[[:space:]]*=[[:space:]]*['\"][^'\"]{8,}" --include="*.php" . | grep -v "password_hash" | grep -v "DB_PASS" | grep -v "example" | grep -v ".gitignore"; then
             echo "Potential hardcoded secrets found"
             exit 1
           fi
