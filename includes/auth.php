@@ -343,15 +343,15 @@ function verify_csrf(): void
     $submitted = $_POST['csrf_token'] ?? '';
 
     if (!is_string($submitted) || !hash_equals(csrf_token(), $submitted)) {
-    render_error_page(
-        419,
-        'That form could not be verified',
-        'The security token on the form was missing or out of date, so the request was '
-        . 'stopped before anything was changed. This usually happens when a page was left '
-        . 'open for a long time. Please go back, reload the page and try again.',
-        'Reload the page',
-        'reload'
-    );
+        render_error_page(
+            419,
+            'That form could not be verified',
+            'The security token on the form was missing or out of date, so the request was '
+            . 'stopped before anything was changed. This usually happens when a page was left '
+            . 'open for a long time. Please go back, reload the page and try again.',
+            'Reload the page',
+            'reload'
+        );
     }
 }
 

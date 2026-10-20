@@ -129,11 +129,7 @@ function db_exists(string $sql, string $types, array $params): bool
  */
 function table_count(string $table, string $where = '', string $types = '', array $params = []): int
 {
-    $safe = preg_replace('/[^A-Za-z_]/', '', $table);
-
-    if ($safe === '' || $safe === null) {
-        throw new InvalidArgumentException('Invalid table name: ' . $table);
-    }
+    $safe = safe_identifier($table);
 
     $sql = 'SELECT COUNT(*) AS `n` FROM `' . $safe . '`';
 
