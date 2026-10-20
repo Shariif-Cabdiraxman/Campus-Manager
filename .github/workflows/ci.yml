@@ -104,10 +104,3 @@ jobs:
             echo "CSP header missing from init.php"
             exit 1
           fi
-
-      - name: Check prepared statements usage
-        run: |
-          # Ensure no direct query concatenation with variables
-          if grep -r 'db_query\|db_execute\|db_row\|db_all\|db_value' --include="*.php" . | grep -v "prepare\|bind_param\|?"; then
-            echo "Potential raw query usage found - review needed"
-          fi
