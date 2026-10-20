@@ -35,11 +35,11 @@
 - Smoke tests are PowerShell-based and won't run on Ubuntu runners
 - **Fix:** Port smoke tests to bash/Node.js; use `act` for local testing; add `composer` if dependencies grow
 
-### 5. **Session Fixation Risk on Login** (`includes/auth.php:87-105`)
-**Severity:** High
-- `session_regenerate_id(true)` called — good
-- But old session data not explicitly destroyed before regeneration
-- **Fix:** Call `session_destroy()` before `session_regenerate_id()` for defense in depth
+### 5. **Session ID Regeneration on Login Works as Intended** (`includes/auth.php:87-105`)
+**Status:** Works as intended
+- `session_regenerate_id(true)` is called at line 89, which rotates the session ID and removes the old session data as intended
+- Do not call `session_destroy()` before regeneration: it would clear the current session state, including data needed after login
+- **Hardening:** Regenerate the session ID whenever an authenticated session's privilege level changes outside the login flow
 
 ### 6. **SQL Identifier Sanitization Incomplete** (`includes/validation.php:227-236`)
 **Severity:** High
