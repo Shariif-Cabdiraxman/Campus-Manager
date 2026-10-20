@@ -22,7 +22,7 @@ jobs:
 
       - name: PHP syntax check
         run: |
-          find . -name '*.php' -not -path './vendor/*' -exec php -l {} \; | grep -v '^No syntax errors' || true
+          find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
 
       - name: Check for trailing whitespace
         run: |
