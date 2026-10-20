@@ -7,12 +7,13 @@
 [![Architecture](https://img.shields.io/badge/Architecture-Modular%20MVC-blueviolet)](#architecture)
 [![Mobile](https://img.shields.io/badge/Mobile-Responsive%20%2B%20PWA-orange)](#on-a-phone)
 [![Security](https://img.shields.io/badge/Security-Hardened-red)](#security)
+[![CI](https://github.com/Shariif-Cabdiraxman/UMS/actions/workflows/ci.yml/badge.svg)](https://github.com/Shariif-Cabdiraxman/UMS/actions/workflows/ci.yml)
 
 ---
 
-A **student records system for a small university**, written in **plain PHP** with **no framework** and **no build step**.
+A **student records system for a small university**, written in **plain PHP 8** with **no framework** and **no build step**.
 
-It covers the academic structure of the institution (faculties, departments, staff, courses), the people in it (lecturers and students), and what they do (enrolments, grades, announcements) behind a **role-based sign-in**.
+It covers the academic structure (faculties, departments, staff, courses), the people (lecturers and students), and what they do (enrolments, grades, announcements) behind a **role-based sign-in**.
 
 > **Nine modules** — each with a searchable, sortable, paginated list, a create/edit form, a detail page, and a **guarded delete**. Foreign keys are enforced in the database, and a delete that would orphan records is refused with a sentence naming what is in the way rather than a cryptic constraint-violation error.
 
@@ -42,6 +43,8 @@ cp config/database.example.php config/database.php
 | `admin` | `Admin@123` | admin | All modules |
 | `registrar` | `Registrar@123` | registrar | Students, courses, enrolments, grades, announcements |
 | `admissions` | `Registrar@123` | registrar | Same as registrar |
+
+> ⚠️ **Change passwords or drop users before any real deployment!**
 
 ---
 
@@ -92,6 +95,7 @@ cp config/database.example.php config/database.php
 ```
 
 **Module Convention** — every module has the same three files:
+
 - `index.php` — permission check, search/filter/sort, one prepared query, shared renderers
 - `form.php` — `validate()` against rule map → insert/update with bound types
 - `view.php` — one row + related lists via `render_deflist()` / `render_related_list()`
@@ -118,7 +122,6 @@ Developed and tested on **XAMPP** (PHP 8.0.30, MariaDB, Apache on port 80).
 ```bash
 git clone https://github.com/Shariif-Cabdiraxman/UMS.git
 ```
-
 Place under your web root (e.g., `htdocs/UMS` or `/var/www/html/UMS`).
 
 ### 2. Create Database & Import Schema
@@ -163,7 +166,6 @@ A fresh import contains enough data to exercise every screen, including the dele
 ## Demo Accounts & Roles
 
 ### Accounts (seeded by `database.sql`)
-> ⚠️ Change passwords or drop users before any real deployment!
 
 | Username | Password | Role | Sees |
 |----------|----------|------|------|
@@ -330,13 +332,23 @@ UMS/
 
 ---
 
+## CI/CD
+
+GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push/PR:
+- PHP syntax check (`php -l`)
+- Trailing whitespace check
+- Security scan (hardcoded secrets, CSP headers, prepared statements)
+- Smoke tests (requires MySQL service)
+
+---
+
 ## Contributing
 
 1. Fork the repo
 2. Create a feature branch (`git checkout -b feature/amazing-thing`)
 3. Run syntax check: `find . -name '*.php' -exec php -l {} \;`
-3. Run smoke tests: `powershell -File tools\smoke_modules.ps1`
-4. Submit a PR with a clear description
+4. Run smoke tests: `powershell -File tools\smoke_modules.ps1`
+5. Submit a PR with a clear description
 
 ---
 
@@ -357,4 +369,5 @@ Copyright (c) 2026 Shariif Abdi
 ---
 
 > **Related Repos**  
-> - [Teacher Digital Gradebook](https://github.com/Shariif-Cabdiraxman/gradebook) — Offline-first, sync-enabled gradebook (TypeScript/React/Tauri/React Native)
+> - [Aqoon (Teacher Digital Gradebook)](https://github.com/Shariif-Cabdiraxman/gradebook) — Offline-first, sync-enabled gradebook (TypeScript/React/Tauri/React Native)  
+> - [GWK University Homepage](https://github.com/Shariif-Cabdiraxman/GWK) — Monochrome design system enforced by tests
