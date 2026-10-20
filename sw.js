@@ -153,6 +153,16 @@ self.addEventListener('fetch', function (event) {
     event.respondWith(
         caches.match(request).then(function (hit) {
             if (hit) {
+                // Keep the fast cached response, but refresh it for the next
+                // visit so changed assets do not require a cache-key bump.
+                fetch(request).then(function (response) {
+                    if (response && response.status === 200 && response.type === 'basic') {
+                        return caches.open(CACHE).then(function (cache) {
+                            return cache.put(request, response);
+                        });
+                    }
+                    return null;
+                }).catch(function () { return null; });
                 return hit;
             }
 
