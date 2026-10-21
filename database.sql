@@ -318,10 +318,13 @@ ALTER TABLE `departments`
 --     Enough realistic data that every list view, filter, search box and
 --     dashboard chart has something real to show on a first run.
 --
---     DEFAULT LOGIN ACCOUNTS
+--     DEMONSTRATION LOGIN ACCOUNTS
 --       admin      / Admin@123       (full access)
 --       registrar  / Registrar@123   (academic records only)
---     Change both passwords before using this anywhere real.
+--     These fixed credentials are included for local demonstrations only.
+--     APP_DEMO_MODE is off by default and controls display of these credentials;
+--     it does not disable the seeded accounts. Change or remove these accounts
+--     before deploying this database anywhere real.
 -- ---------------------------------------------------------------------
 
 INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `full_name`, `role`, `status`, `last_login_at`) VALUES

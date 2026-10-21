@@ -53,24 +53,21 @@ define('APP_DEBUG', $debugEnabled);
 // Demonstration mode.
 //
 // While this is on, the sign-in screen lists the seeded accounts so the
-// project can be opened and used straight away. It is on by default because
-// this repository is a portfolio project rather than a live system, and the
-// seeded data is fictitious either way.
+// project can be opened and used straight away. It is disabled by default;
+// enable it explicitly for a local demonstration only.
 //
-// Turn it off for any real installation, so the sign-in page stops
-// advertising working credentials. Create an empty file:
+// To enable it for a local demonstration, set an environment variable:
+//
+//     setx APP_DEMO_MODE 1        (PowerShell, then restart Apache)
+//
+// To force it off, create an empty file or set an off value:
 //
 //     config/demo.off.local.php
-//
-// or set an environment variable:
-//
 //     setx APP_DEMO_MODE 0        (PowerShell, then restart Apache)
-//     $env:APP_DEMO_MODE = '0'    (current shell only)
 // ---------------------------------------------------------------------
 $demoSetting = strtolower((string) (getenv('APP_DEMO_MODE') ?: ''));
-$demoDisabled = in_array($demoSetting, ['0', 'false', 'no', 'off'], true)
-    || is_file(APP_ROOT . '/config/demo.off.local.php');
-$demoEnabled = !$demoDisabled;
+$demoEnabled = in_array($demoSetting, ['1', 'true', 'yes', 'on'], true)
+    && !is_file(APP_ROOT . '/config/demo.off.local.php');
 
 define('APP_DEMO_MODE', $demoEnabled);
 

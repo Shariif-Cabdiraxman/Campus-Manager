@@ -15,8 +15,9 @@
 ### 2. **Demo Credentials in Production Database** (`database.sql:327-330`)
 **Severity:** Critical
 - Seeded accounts (`admin`/`Admin@123`, `registrar`/`Registrar@123`) have known passwords
-- `APP_DEMO_MODE` defaults to `true` — exposes credentials on login page
-- **Fix:** Remove demo accounts from production seed; require explicit opt-in; generate random passwords on install
+- `APP_DEMO_MODE` defaults to `false` — credentials are exposed only after explicit opt-in
+- **Remaining risk:** `database.sql` still creates these accounts; operators must change or remove them before deployment
+- **Follow-up:** Split demonstration data from the production schema or add an installer-controlled account setup
 
 ### 3. **Missing HTTP Security Headers in Production** (`includes/init.php:32-48`)
 **Severity:** High
@@ -114,7 +115,7 @@
 
 ```markdown
 # Issue 1: Implement IP-based login rate limiting
-# Issue 2: Remove demo credentials from production seed
+# Issue 2: Replace fixed demo credentials in the production seed
 # Issue 3: Add HSTS and strengthen CSP headers
 # Issue 4: Port smoke tests to cross-platform (bash/Node)
 # Issue 5: Add audit logging for all data mutations
