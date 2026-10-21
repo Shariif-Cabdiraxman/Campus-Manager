@@ -25,7 +25,7 @@ It covers the academic structure of the institution (faculties, departments, sta
 git clone https://github.com/Shariif-Cabdiraxman/UMS.git
 cd UMS
 
-# 2. Import schema + seed data
+# 2. Import schema + sample data
 mysql -u root < database.sql
 
 # 3. Configure (copy template, edit credentials)
@@ -35,7 +35,15 @@ cp config/database.example.php config/database.php
 # http://localhost/UMS/
 ```
 
-**Demo accounts** (printed on the login page when `APP_DEMO_MODE=1`):
+Demo mode is **off by default**, so the login page does not print the seeded
+passwords. For a local demonstration only, explicitly enable it before
+opening the app:
+
+```powershell
+setx APP_DEMO_MODE 1    # restart Apache afterwards
+```
+
+The seeded demo accounts are then printed on the login page:
 
 | Username | Password | Role | Access |
 |----------|----------|------|--------|
@@ -128,7 +136,7 @@ mysql -u root < database.sql
 This creates:
 - `university_management` database
 - 9 tables with foreign keys
-- Full demonstration data (see [Seed Data](#seed-data))
+- Full sample data (see [Seed Data](#seed-data))
 
 > Or use phpMyAdmin: **Import** → choose `database.sql`
 
@@ -146,7 +154,8 @@ define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
 ```
 
 ### 4. Open in Browser
-Navigate to `http://localhost/UMS/` and sign in with a demo account.
+Navigate to `http://localhost/UMS/`. Demo credentials are shown only if
+`APP_DEMO_MODE=1` is explicitly enabled for a local demonstration.
 
 ---
 
@@ -163,7 +172,9 @@ A fresh import contains enough data to exercise every screen, including the dele
 ## Demo Accounts & Roles
 
 ### Accounts (seeded by `database.sql`)
-> ⚠️ Change passwords or drop users before any real deployment!
+> These are fixed sample credentials for local demonstrations, not an
+> installation credential mechanism. Change the passwords or remove these
+> accounts before any deployment, and leave `APP_DEMO_MODE` disabled.
 
 | Username | Password | Role | Sees |
 |----------|----------|------|------|
@@ -189,14 +200,17 @@ Permissions are checked server-side in `require_permission()` at the top of ever
 
 ### Debug / Demo Mode
 ```powershell
-# Disable demo hint block on login page
+# Enable demo hint block on the login page for a local demonstration only
+setx APP_DEMO_MODE 1    # restart Apache
+
+# Disable it again (the default)
 setx APP_DEMO_MODE 0    # restart Apache
 
 # Enable debug exceptions (local only!)
 setx APP_DEBUG 1        # restart Apache
 ```
 Or create empty files (gitignored):
-- `config/demo.off.local.php` — disables demo mode
+- `config/demo.off.local.php` — forces demo mode off, even if the environment enables it
 - `config/debug.local.php` — enables debug mode
 
 ---
@@ -270,6 +284,7 @@ Both suites create and remove their own rows — a green run leaves the database
 ### Manual Probe
 ```powershell
 . tools\smoke.ps1
+# Set APP_DEMO_MODE=1 first when using the seeded local demo accounts.
 Login 'admin' 'Admin@123'
 $r = Http-Get '/grades/index.php'
 $r.Status                      # 200
@@ -327,6 +342,7 @@ UMS/
 - **CSP**: `Content-Security-Policy` set — no inline handlers (filters use `data-auto-submit`)
 - **Brute-Force Protection**: 5 failed logins → 15-minute cool-down
 - **Timing Attack Resistance**: unknown usernames still run `password_verify()` against dummy hash
+- **Demo credentials**: `database.sql` contains fixed sample accounts for local testing; demo mode is disabled by default and the credentials must be changed or removed before deployment
 
 ---
 
