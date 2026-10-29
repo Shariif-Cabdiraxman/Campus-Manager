@@ -83,7 +83,7 @@
     --font-mono: Arial, Helvetica, sans-serif;
 
     /* Metrics */
-    --sidebar-w: 248px;
+    --sidebar-w: 220px;
     --rail-w: 76px;
     --topbar-h: 58px;
     --content-max: 1440px;
@@ -321,7 +321,7 @@ ul, ol {
     max-width: calc(var(--content-max) + 2 * 2rem);
     margin-left: var(--sidebar-w);
     padding: 1.75rem 2rem 3rem;
-    transition: margin-left 0.18s ease;
+    transition: margin-left 0.34s ease-in-out;
 }
 
 /* The rail is fixed so the content scrolls independently. */
@@ -332,7 +332,7 @@ ul, ol {
     display: flex;
     flex-direction: column;
     width: var(--sidebar-w);
-    transition: width 0.18s ease;
+    transition: width 0.34s ease-in-out;
     background: var(--sidebar-bg);
     color: var(--sidebar-fg);
     border-right: 1px solid var(--sidebar-border);
@@ -587,7 +587,7 @@ ul, ol {
     top: 0;
     right: 0;
     left: var(--sidebar-w);
-    transition: left 0.18s ease;
+    transition: left 0.34s ease-in-out;
     z-index: 50;
     display: flex;
     align-items: center;
@@ -2246,7 +2246,7 @@ th[aria-sort] .th__mark {
     right: 0;
     bottom: 0;
     left: var(--sidebar-w);
-    transition: left 0.18s ease;
+    transition: left 0.34s ease-in-out;
     z-index: 40;
     display: flex;
     align-items: center;
@@ -2318,7 +2318,7 @@ th[aria-sort] .th__mark {
 
     body:has(.sidebar:hover),
     body:has(.sidebar:focus-within) {
-        --sidebar-w: 248px;
+        --sidebar-w: 220px;
     }
 
     .brand__text,
