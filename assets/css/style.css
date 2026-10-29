@@ -321,6 +321,7 @@ ul, ol {
     max-width: calc(var(--content-max) + 2 * 2rem);
     margin-left: var(--sidebar-w);
     padding: 1.75rem 2rem 3rem;
+    transition: margin-left 0.18s ease;
 }
 
 /* The rail is fixed so the content scrolls independently. */
@@ -331,6 +332,7 @@ ul, ol {
     display: flex;
     flex-direction: column;
     width: var(--sidebar-w);
+    transition: width 0.18s ease;
     background: var(--sidebar-bg);
     color: var(--sidebar-fg);
     border-right: 1px solid var(--sidebar-border);
@@ -585,6 +587,7 @@ ul, ol {
     top: 0;
     right: 0;
     left: var(--sidebar-w);
+    transition: left 0.18s ease;
     z-index: 50;
     display: flex;
     align-items: center;
@@ -2243,6 +2246,7 @@ th[aria-sort] .th__mark {
     right: 0;
     bottom: 0;
     left: var(--sidebar-w);
+    transition: left 0.18s ease;
     z-index: 40;
     display: flex;
     align-items: center;
@@ -2308,9 +2312,14 @@ th[aria-sort] .th__mark {
    20. Responsive
    ========================================================================== */
 
-/* Between 900 and 1180px the rail collapses to icons only. */
-@media (max-width: 1180px) and (min-width: 901px) {
+/* On desktop, keep a compact icon rail and reveal its labels on hover/focus. */
+@media (min-width: 901px) {
     :root { --sidebar-w: var(--rail-w); }
+
+    body:has(.sidebar:hover),
+    body:has(.sidebar:focus-within) {
+        --sidebar-w: 248px;
+    }
 
     .brand__text,
     .nav__grouplabel,
@@ -2322,12 +2331,50 @@ th[aria-sort] .th__mark {
         display: none;
     }
 
+    .sidebar:hover .brand__text,
+    .sidebar:focus-within .brand__text,
+    .sidebar:hover .nav__grouplabel,
+    .sidebar:focus-within .nav__grouplabel,
+    .sidebar:hover .nav__label,
+    .sidebar:focus-within .nav__label,
+    .sidebar:hover .nav__count,
+    .sidebar:focus-within .nav__count,
+    .sidebar:hover .nav__lock,
+    .sidebar:focus-within .nav__lock,
+    .sidebar:hover .signedin__text,
+    .sidebar:focus-within .signedin__text,
+    .sidebar:hover .sidebar__logout span,
+    .sidebar:focus-within .sidebar__logout span {
+        display: initial;
+    }
+
+    .sidebar:hover .brand__text,
+    .sidebar:focus-within .brand__text { display: flex; }
+    .sidebar:hover .nav__grouplabel,
+    .sidebar:focus-within .nav__grouplabel { display: block; }
+    .sidebar:hover .nav__lock,
+    .sidebar:focus-within .nav__lock { display: flex; }
+    .sidebar:hover .signedin__text,
+    .sidebar:focus-within .signedin__text { display: block; }
+
     .sidebar__brand { justify-content: center; padding: 0; }
     .brand { justify-content: center; }
     .nav__link { justify-content: center; padding: 0.55rem 0; }
     .nav__link.is-active::before { left: -0.6rem; }
     .signedin { justify-content: center; padding: 0.35rem 0 0.6rem; }
     .sidebar__logout { justify-content: center; }
+
+    .sidebar:hover .sidebar__brand,
+    .sidebar:focus-within .sidebar__brand { justify-content: flex-start; padding: 0 0.75rem 0 1rem; }
+    .sidebar:hover .brand,
+    .sidebar:focus-within .brand { justify-content: flex-start; }
+    .sidebar:hover .nav__link,
+    .sidebar:focus-within .nav__link { justify-content: flex-start; padding: 0.46rem 0.55rem; }
+    .sidebar:hover .signedin,
+    .sidebar:focus-within .signedin { justify-content: flex-start; padding: 0.35rem 0.5rem 0.6rem; }
+    .sidebar:hover .sidebar__logout,
+    .sidebar:focus-within .sidebar__logout { justify-content: flex-start; }
+
     .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
