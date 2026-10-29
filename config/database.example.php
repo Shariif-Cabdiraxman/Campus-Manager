@@ -47,7 +47,7 @@ function db(): mysqli
         exit(
             '<!doctype html><meta charset="utf-8">'
             . '<title>Database unavailable</title>'
-            . '<div style="font:15px/1.6 system-ui,sans-serif;max-width:40rem;margin:15vh auto;padding:0 1.5rem">'
+            . '<div style="font:15px/1.6 Arial,Helvetica,sans-serif;max-width:40rem;margin:15vh auto;padding:0 1.5rem">'
             . '<h1 style="font-size:1.25rem;margin:0 0 .75rem">The database is not available</h1>'
             . '<p style="color:#555;margin:0 0 1rem">The application could not connect to MySQL. '
             . 'Check that MySQL is running in the XAMPP control panel and that '

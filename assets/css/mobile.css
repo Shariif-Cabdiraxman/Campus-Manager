@@ -691,7 +691,6 @@ body.mobile {
     grid-template-columns: repeat(4, 1fr);
     background: var(--surface);
     border-top: 1px solid var(--border);
-    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
 }
 
 .mtab {
@@ -736,7 +735,6 @@ body.mobile {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    box-shadow: var(--shadow-sm);
 }
 
 .mhero__title {
@@ -812,7 +810,6 @@ body.mobile {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    box-shadow: var(--shadow-sm);
     color: inherit;
 }
 
@@ -992,7 +989,6 @@ body.mobile {
     .card,
     .stat {
         border: 1px solid #c6c6c6;
-        box-shadow: none;
         break-inside: avoid;
     }
 }

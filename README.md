@@ -1,4 +1,4 @@
-# University Management System (UMS)
+# Hagmah Campus Manager (HCM)
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.0%2B-777BB4?logo=php&logoColor=white)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-MySQL%20%7C%20MariaDB-4479A1?logo=mysql&logoColor=white)](https://mariadb.org)
@@ -156,7 +156,7 @@ A fresh import contains enough data to exercise every screen, including the dele
 
 | Faculties | Departments | Lecturers | Courses | Students | Enrolments | Grades | Announcements | Users |
 |-----------|-------------|-----------|---------|----------|------------|--------|---------------|-------|
-| 5 | 12 | 19 | 37 | 48 | 644 | 1,076 | 7 | 3 |
+| 5 | 12 | 19 | 37 | 400 | 644 | 1,076 | 7 | 3 |
 
 ---
 
