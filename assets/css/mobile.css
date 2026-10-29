@@ -13,7 +13,7 @@
      - The bottom bar and the save bar clear the home indicator through
        env(safe-area-inset-bottom).
      - No colour of its own: a state is carried by its badge, its label and its
-       mark, and the palette stays the monochrome one from style.css.
+       mark, and the palette stays in sync with style.css.
    ========================================================================== */
 
 :root {

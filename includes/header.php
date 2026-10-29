@@ -55,11 +55,11 @@ function render_document_head(string $title, array $options = []): void
         <meta name="viewport" content="<?= e((string) ($options['viewport'] ?? 'width=device-width, initial-scale=1')) ?>">
         <meta name="description" content="<?= e($options['description'] ?? (APP_NAME . ' — ' . APP_TAGLINE)) ?>">
         <meta name="color-scheme" content="light dark">
-        <meta name="theme-color" content="#111111">
+        <meta name="theme-color" content="#12283d">
         <title><?= e($fullTitle) ?></title>
 
         <link rel="icon" href="<?= e(url('assets/img/favicon.svg')) ?>" type="image/svg+xml">
-        <link rel="stylesheet" href="<?= e(url('assets/css/style.css')) ?>">
+        <link rel="stylesheet" href="<?= e(url('assets/css/style.css?v=20261029-navy-bronze')) ?>">
         <?php foreach ((array) ($options['styles'] ?? []) as $style): ?>
             <link rel="stylesheet" href="<?= e(url((string) $style)) ?>">
         <?php endforeach; ?>
@@ -96,11 +96,11 @@ function render_standalone_head(string $title, array $options = []): void
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="color-scheme" content="light dark">
-        <meta name="theme-color" content="#111111">
+        <meta name="theme-color" content="#12283d">
         <meta name="robots" content="noindex">
         <title><?= e($fullTitle) ?></title>
         <link rel="icon" href="<?= e(url('assets/img/favicon.svg')) ?>" type="image/svg+xml">
-        <link rel="stylesheet" href="<?= e(url('assets/css/style.css')) ?>">
+        <link rel="stylesheet" href="<?= e(url('assets/css/style.css?v=20261029-navy-bronze')) ?>">
         <?php if (!empty($options['meta'])): ?>
             <meta name="description" content="<?= e((string) $options['meta']) ?>">
         <?php endif; ?>
@@ -120,7 +120,7 @@ function render_document_foot(array $options = []): void
     // app.js always loads; anything extra follows it.
     $scripts = $options['scripts'] ?? [];
     ?>
-    <script src="<?= e(url('assets/js/app.js')) ?>" defer></script>
+    <script src="<?= e(url('assets/js/app.js?v=20261029-sidebar-manual')) ?>" defer></script>
     <?php foreach ($scripts as $script): ?>
         <script src="<?= e(url((string) $script)) ?>" defer></script>
     <?php endforeach; ?>

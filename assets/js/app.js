@@ -37,7 +37,35 @@
         var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
         var drawer = window.matchMedia('(max-width: 900px)');
         var openers = doc.querySelectorAll('[data-sidebar-open]');
+        var desktopToggle = doc.querySelector('[data-sidebar-toggle]');
         var lastFocused = null;
+
+        function syncDesktopToggle() {
+            if (!desktopToggle) { return; }
+            var expanded = !sidebar.classList.contains('is-collapsed');
+            desktopToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            desktopToggle.setAttribute('aria-label', expanded ? 'Collapse sidebar' : 'Expand sidebar');
+            desktopToggle.setAttribute('title', expanded ? 'Collapse sidebar' : 'Expand sidebar');
+        }
+
+        if (desktopToggle) {
+            try {
+                if (localStorage.getItem('hagmah-sidebar-collapsed') === '0') {
+                    sidebar.classList.remove('is-collapsed');
+                } else {
+                    sidebar.classList.add('is-collapsed');
+                }
+            } catch (e) { /* private browsing: use the default collapsed rail */ }
+            syncDesktopToggle();
+            desktopToggle.addEventListener('click', function () {
+                if (window.matchMedia('(max-width: 900px)').matches) { return; }
+                sidebar.classList.toggle('is-collapsed');
+                syncDesktopToggle();
+                try {
+                    localStorage.setItem('hagmah-sidebar-collapsed', sidebar.classList.contains('is-collapsed') ? '1' : '0');
+                } catch (e) { /* private browsing: state lasts this page only */ }
+            });
+        }
 
         function isOpen() {
             return sidebar.classList.contains('is-open');
@@ -85,12 +113,22 @@
         // Leaving the narrow breakpoint reveals the rail, so drop the state.
         function handleBreakpoint(event) {
             if (event.matches) {
+                sidebar.classList.add('is-collapsed');
+                syncDesktopToggle();
                 setInert(true);
                 syncOpeners(false);
                 if (scrim) { scrim.hidden = true; }
                 doc.body.style.overflow = '';
                 sidebar.classList.remove('is-open');
             } else {
+                try {
+                    if (localStorage.getItem('hagmah-sidebar-collapsed') === '0') {
+                        sidebar.classList.remove('is-collapsed');
+                    } else {
+                        sidebar.classList.add('is-collapsed');
+                    }
+                } catch (e) { sidebar.classList.add('is-collapsed'); }
+                syncDesktopToggle();
                 setInert(false);
                 sidebar.removeAttribute('aria-hidden');
                 if (scrim) { scrim.hidden = true; }

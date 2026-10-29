@@ -33,31 +33,31 @@
    ========================================================================== */
 
 :root {
-    /* Surfaces: warm parchment, tinted rather than neutral grey */
-    --bg: #f3f0e8;
-    --bg-sunken: #e9e4d8;
-    --surface: #fbf9f3;
-    --surface-2: #f6f2e9;
-    --surface-3: #eee9de;
-    --border: #dad3c4;
-    --border-strong: #bfb6a3;
+    /* Surfaces: cool slate with clean white panels */
+    --bg: #edf2f7;
+    --bg-sunken: #dfe7f0;
+    --surface: #ffffff;
+    --surface-2: #f7f9fc;
+    --surface-3: #e8eef5;
+    --border: #d5deea;
+    --border-strong: #b7c4d3;
 
-    /* Text: deep petrol ink */
-    --text: #1e2d2c;
-    --text-2: #4c5d5b;
-    --text-3: #70807d;
+    /* Text: deep navy, slate and steel */
+    --text: #172b42;
+    --text-2: #44566c;
+    --text-3: #6c7d91;
 
     /* Link and focus ink */
-    --navy: #0f4c47;
-    --navy-deep: #0a3733;
-    --brass: #0f4c47;
-    --brass-light: #2e6b63;
+    --navy: #203a56;
+    --navy-deep: #13273a;
+    --brass: #a66b2b;
+    --brass-light: #80501f;
 
-    /* Primary action: deep teal */
-    --primary: #0f4c47;
-    --primary-hover: #0a3733;
-    --primary-fg: #f8f6ef;
-    --primary-soft: #dce9e5;
+    /* Primary action: steel blue with a bronze secondary accent */
+    --primary: #1d4d73;
+    --primary-hover: #163b59;
+    --primary-fg: #ffffff;
+    --primary-soft: #ddeaf3;
 
     /* Status tones: text, tinted background, border */
     --ok-fg: #256b4a;      --ok-bg: #e1f0e7;      --ok-bd: #b3d4c1;
@@ -65,17 +65,17 @@
     --danger-fg: #a33a3a;  --danger-bg: #f8e3e1;  --danger-bd: #e5b9b5;
     --info-fg: #2a5d78;    --info-bg: #e3eff5;    --info-bd: #b7d1df;
     --neutral-fg: #5a6664; --neutral-bg: #ece8de; --neutral-bd: #d5cec0;
-    --accent-fg: #9c4b2b;  --accent-bg: #f5e4da;  --accent-bd: #e3c3b1;
+    --accent-fg: #80501f;  --accent-bg: #f4eadb;  --accent-bd: #dcc59f;
 
-    /* Navigation rail: warm white, not black */
-    --sidebar-bg: #faf8f2;
-    --sidebar-fg: #243533;
-    --sidebar-dim: #6a7a77;
-    --sidebar-hover: #f0ebdf;
-    --sidebar-active: #dce9e5;
-    --sidebar-active-fg: #0f4c47;
-    --sidebar-border: #e1dacb;
-    --sidebar-count: #e8e1d4;
+    /* Navigation: deep navy with a steel-blue active state */
+    --sidebar-bg: #12283d;
+    --sidebar-fg: #eff4f8;
+    --sidebar-dim: #aab9c8;
+    --sidebar-hover: #1d3b55;
+    --sidebar-active: #28577e;
+    --sidebar-active-fg: #ffffff;
+    --sidebar-border: #284158;
+    --sidebar-count: #284158;
 
     /* Type */
     --font-display: Arial, Helvetica, sans-serif;
@@ -99,43 +99,43 @@
 }
 
 [data-theme='dark'] {
-    --bg: #111a19;
-    --bg-sunken: #0b1312;
-    --surface: #16211f;
-    --surface-2: #1b2825;
-    --surface-3: #22312d;
-    --border: #2c3c38;
-    --border-strong: #40534d;
+    --bg: #0e1823;
+    --bg-sunken: #09111a;
+    --surface: #152231;
+    --surface-2: #1b2b3c;
+    --surface-3: #24374b;
+    --border: #2e4359;
+    --border-strong: #456078;
 
-    --text: #e7ece6;
-    --text-2: #a7b5af;
-    --text-3: #7d8c86;
+    --text: #e8eff5;
+    --text-2: #b8c7d6;
+    --text-3: #91a3b7;
 
-    --navy: #8fcbbe;
-    --navy-deep: #b4dfd4;
-    --brass: #8fcbbe;
-    --brass-light: #6fb3a5;
+    --navy: #a9c5dc;
+    --navy-deep: #d0e0ed;
+    --brass: #e4b56d;
+    --brass-light: #f0cb91;
 
-    --primary: #8fcbbe;
-    --primary-hover: #b4dfd4;
-    --primary-fg: #0b1312;
-    --primary-soft: #21332f;
+    --primary: #8bb4d5;
+    --primary-hover: #a7c9e3;
+    --primary-fg: #102131;
+    --primary-soft: #22394f;
 
     --ok-fg: #8fd3b0;      --ok-bg: #16291f;      --ok-bd: #2c4a39;
     --warn-fg: #e3c285;    --warn-bg: #2a2315;    --warn-bd: #4a3d24;
     --danger-fg: #eda3a0;  --danger-bg: #2b1918;  --danger-bd: #4d2d2b;
     --info-fg: #9fc9df;    --info-bg: #16242c;    --info-bd: #2c4350;
     --neutral-fg: #a7b5af; --neutral-bg: #1b2825; --neutral-bd: #34443f;
-    --accent-fg: #e7b49a;  --accent-bg: #2a2018;  --accent-bd: #4a372a;
+    --accent-fg: #e7c18e;  --accent-bg: #2a241b;  --accent-bd: #4a3d2a;
 
-    --sidebar-bg: #131d1b;
-    --sidebar-fg: #e7ece6;
-    --sidebar-dim: #8a9994;
-    --sidebar-hover: #1c2926;
-    --sidebar-active: #21332f;
-    --sidebar-active-fg: #b4dfd4;
-    --sidebar-border: #273632;
-    --sidebar-count: #25332f;
+    --sidebar-bg: #0b1723;
+    --sidebar-fg: #e8eff5;
+    --sidebar-dim: #91a3b7;
+    --sidebar-hover: #182b3d;
+    --sidebar-active: #24425a;
+    --sidebar-active-fg: #ffffff;
+    --sidebar-border: #20364a;
+    --sidebar-count: #20364a;
 
     --shadow-sm: none;
     --shadow: none;
@@ -321,7 +321,7 @@ ul, ol {
     max-width: calc(var(--content-max) + 2 * 2rem);
     margin-left: var(--sidebar-w);
     padding: 1.75rem 2rem 3rem;
-    transition: margin-left 0.34s ease-in-out;
+    transition: margin-left 0.58s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 /* The rail is fixed so the content scrolls independently. */
@@ -332,7 +332,7 @@ ul, ol {
     display: flex;
     flex-direction: column;
     width: var(--sidebar-w);
-    transition: width 0.34s ease-in-out;
+    transition: width 0.58s cubic-bezier(0.22, 0.61, 0.36, 1);
     background: var(--sidebar-bg);
     color: var(--sidebar-fg);
     border-right: 1px solid var(--sidebar-border);
@@ -422,6 +422,31 @@ ul, ol {
     background: var(--sidebar-hover);
 }
 
+.sidebar__toggle {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    color: var(--sidebar-fg);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.sidebar__toggle:hover,
+.sidebar__toggle:focus-visible {
+    background: var(--sidebar-hover);
+    border-color: var(--sidebar-border);
+}
+
+.sidebar__toggle-collapse { display: none; }
+.sidebar:not(.is-collapsed) .sidebar__toggle-expand { display: none; }
+.sidebar:not(.is-collapsed) .sidebar__toggle-collapse { display: inline-flex; }
+
 .nav {
     flex: 1 1 auto;
     overflow-y: auto;
@@ -434,7 +459,7 @@ ul, ol {
 
 .nav__grouplabel {
     margin: 0 0 0.4rem;
-    padding: 0 0.55rem;
+    padding: 0 0.55rem 0 2.9rem;
     font-size: 0.64rem;
     font-weight: 600;
     letter-spacing: 0.1em;
@@ -2312,12 +2337,11 @@ th[aria-sort] .th__mark {
    20. Responsive
    ========================================================================== */
 
-/* On desktop, keep a compact icon rail and reveal its labels on hover/focus. */
+/* On desktop, the user controls whether the rail stays compact or expanded. */
 @media (min-width: 901px) {
     :root { --sidebar-w: var(--rail-w); }
 
-    body:has(.sidebar:hover),
-    body:has(.sidebar:focus-within) {
+    body:has(.sidebar:not(.is-collapsed)) {
         --sidebar-w: 220px;
     }
 
@@ -2331,49 +2355,34 @@ th[aria-sort] .th__mark {
         display: none;
     }
 
-    .sidebar:hover .brand__text,
-    .sidebar:focus-within .brand__text,
-    .sidebar:hover .nav__grouplabel,
-    .sidebar:focus-within .nav__grouplabel,
-    .sidebar:hover .nav__label,
-    .sidebar:focus-within .nav__label,
-    .sidebar:hover .nav__count,
-    .sidebar:focus-within .nav__count,
-    .sidebar:hover .nav__lock,
-    .sidebar:focus-within .nav__lock,
-    .sidebar:hover .signedin__text,
-    .sidebar:focus-within .signedin__text,
-    .sidebar:hover .sidebar__logout span,
-    .sidebar:focus-within .sidebar__logout span {
+    .sidebar:not(.is-collapsed) .brand__text,
+    .sidebar:not(.is-collapsed) .nav__grouplabel,
+    .sidebar:not(.is-collapsed) .nav__label,
+    .sidebar:not(.is-collapsed) .nav__count,
+    .sidebar:not(.is-collapsed) .nav__lock,
+    .sidebar:not(.is-collapsed) .signedin__text,
+    .sidebar:not(.is-collapsed) .sidebar__logout span {
         display: initial;
     }
 
-    .sidebar:hover .brand__text,
-    .sidebar:focus-within .brand__text { display: flex; }
-    .sidebar:hover .nav__grouplabel,
-    .sidebar:focus-within .nav__grouplabel { display: block; }
-    .sidebar:hover .nav__lock,
-    .sidebar:focus-within .nav__lock { display: flex; }
-    .sidebar:hover .signedin__text,
-    .sidebar:focus-within .signedin__text { display: block; }
+    .sidebar:not(.is-collapsed) .brand__text { display: flex; }
+    .sidebar:not(.is-collapsed) .nav__grouplabel { display: block; }
+    .sidebar:not(.is-collapsed) .nav__lock { display: flex; }
+    .sidebar:not(.is-collapsed) .signedin__text { display: block; }
 
-    .sidebar__brand { justify-content: center; padding: 0; }
+    .sidebar__toggle { display: flex; }
+    .sidebar__brand { justify-content: space-between; padding: 0 0.5rem; }
     .brand { justify-content: center; }
     .nav__link { justify-content: center; padding: 0.55rem 0; }
     .nav__link.is-active::before { left: -0.6rem; }
     .signedin { justify-content: center; padding: 0.35rem 0 0.6rem; }
     .sidebar__logout { justify-content: center; }
 
-    .sidebar:hover .sidebar__brand,
-    .sidebar:focus-within .sidebar__brand { justify-content: flex-start; padding: 0 0.75rem 0 1rem; }
-    .sidebar:hover .brand,
-    .sidebar:focus-within .brand { justify-content: flex-start; }
-    .sidebar:hover .nav__link,
-    .sidebar:focus-within .nav__link { justify-content: flex-start; padding: 0.46rem 0.55rem; }
-    .sidebar:hover .signedin,
-    .sidebar:focus-within .signedin { justify-content: flex-start; padding: 0.35rem 0.5rem 0.6rem; }
-    .sidebar:hover .sidebar__logout,
-    .sidebar:focus-within .sidebar__logout { justify-content: flex-start; }
+    .sidebar:not(.is-collapsed) .sidebar__brand { justify-content: space-between; padding: 0 0.65rem 0 1rem; }
+    .sidebar:not(.is-collapsed) .brand { justify-content: flex-start; }
+    .sidebar:not(.is-collapsed) .nav__link { justify-content: flex-start; padding: 0.46rem 0.55rem; }
+    .sidebar:not(.is-collapsed) .signedin { justify-content: flex-start; padding: 0.35rem 0.5rem 0.6rem; }
+    .sidebar:not(.is-collapsed) .sidebar__logout { justify-content: flex-start; }
 
 }
 
@@ -2394,6 +2403,7 @@ th[aria-sort] .th__mark {
     }
 
     .sidebar__close { display: flex; }
+    .sidebar__toggle { display: none; }
     .topbar__menu { display: flex; }
     .topbar, .footer { left: 0; }
     .topbar { padding: 0 1rem; }

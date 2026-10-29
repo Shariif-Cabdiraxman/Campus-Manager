@@ -120,7 +120,7 @@ function render_sidebar(string $active = ''): void
     $user   = current_user();
     ?>
     <div class="shell">
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar is-collapsed" id="sidebar">
             <div class="sidebar__brand">
                 <a class="brand" href="<?= e(url('dashboard.php')) ?>">
                     <span class="brand__mark"><?= brand_mark(30) ?></span>
@@ -132,9 +132,15 @@ function render_sidebar(string $active = ''): void
                 <button class="sidebar__close" type="button" data-sidebar-close aria-label="Close navigation">
                     <?= icon('x', 18) ?>
                 </button>
+                <button class="sidebar__toggle" type="button" data-sidebar-toggle
+                        aria-label="Expand sidebar" aria-expanded="false" aria-controls="sidebar-navigation"
+                        title="Expand sidebar">
+                    <span class="sidebar__toggle-expand"><?= icon('chevron-right', 17) ?></span>
+                    <span class="sidebar__toggle-collapse"><?= icon('chevron-left', 17) ?></span>
+                </button>
             </div>
 
-            <nav class="nav" aria-label="Main">
+            <nav class="nav" id="sidebar-navigation" aria-label="Main">
                 <?php foreach (navigation_groups() as $group): ?>
                     <div class="nav__group">
                         <p class="nav__grouplabel"><?= e($group['label']) ?></p>
