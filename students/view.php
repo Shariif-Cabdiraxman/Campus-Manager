@@ -113,27 +113,122 @@ foreach ($enrollments as $enrollment) {
 }
 ?>
 
-<section class="recordhead">
-    <span class="recordhead__mark"><?= icon('student', 26) ?></span>
-    <div class="recordhead__text">
-        <h2 class="recordhead__title"><?= e($name) ?></h2>
-        <p class="recordhead__meta">
-            <span class="table__id"><?= e($student['student_no']) ?></span>
-            <span><?= e(humanize($student['gender'])) ?></span>
+<div class="profile-layout">
+    <aside class="profile-card">
+        <div class="profile-card__avatar" aria-hidden="true"><?= e(initials($student['first_name'], $student['last_name'])) ?></div>
+        <h2 class="profile-card__name"><?= e($name) ?></h2>
+        <p class="profile-card__role">
+            <?= e($programme['department_name'] ?? 'No department') ?>
             <?php if ($programme !== null): ?>
-                <span>
-                    <a href="<?= e(url('departments/view.php?id=' . (int) $student['department_id'])) ?>"><?= e($programme['department_name']) ?></a>
-                    · <a href="<?= e(url('faculties/view.php?id=' . (int) $student['faculty_id'])) ?>"><?= e($programme['faculty_name']) ?></a>
-                </span>
+                · <?= e($programme['faculty_name']) ?>
             <?php endif; ?>
-            <span><?= badge($student['status']) ?></span>
         </p>
-    </div>
-</section>
+        <div class="profile-card__badges">
+            <?= badge($student['status']) ?>
+            <span class="badge badge--neutral"><span class="badge__mark" aria-hidden="true"></span><?= e(humanize($student['gender'])) ?></span>
+        </div>
 
-<div class="split split--wide mb-3">
+        <div class="profile-card__divider"></div>
+
+        <div class="profile-meta">
+            <div class="profile-meta__item">
+                <span class="profile-meta__icon"><?= icon('student', 14) ?></span>
+                <span>
+                    <span class="profile-meta__label">Student number</span>
+                    <span class="profile-meta__value table__id"><?= e($student['student_no']) ?></span>
+                </span>
+            </div>
+            <div class="profile-meta__item">
+                <span class="profile-meta__icon"><?= icon('mail', 14) ?></span>
+                <span>
+                    <span class="profile-meta__label">Email</span>
+                    <span class="profile-meta__value"><a href="mailto:<?= e($student['email']) ?>"><?= e($student['email']) ?></a></span>
+                </span>
+            </div>
+            <div class="profile-meta__item">
+                <span class="profile-meta__icon"><?= icon('phone', 14) ?></span>
+                <span>
+                    <span class="profile-meta__label">Phone</span>
+                    <span class="profile-meta__value"><?= $student['phone'] !== null ? e($student['phone']) : '<span class="text-3">Not recorded</span>' ?></span>
+                </span>
+            </div>
+            <div class="profile-meta__item">
+                <span class="profile-meta__icon"><?= icon('calendar', 14) ?></span>
+                <span>
+                    <span class="profile-meta__label">Date of birth</span>
+                    <span class="profile-meta__value">
+                        <?= e(format_db_date($student['date_of_birth'])) ?>
+                        <?php if ($student['date_of_birth'] !== null): ?>
+                            · age <?= e((string) age_from($student['date_of_birth'])) ?>
+                        <?php endif; ?>
+                    </span>
+                </span>
+            </div>
+            <div class="profile-meta__item">
+                <span class="profile-meta__icon"><?= icon('faculty', 14) ?></span>
+                <span>
+                    <span class="profile-meta__label">Programme</span>
+                    <span class="profile-meta__value">
+                        <?php if ($programme !== null): ?>
+                            <a href="<?= e(url('departments/view.php?id=' . (int) $student['department_id'])) ?>"><?= e($programme['department_name']) ?></a>
+                        <?php else: ?>
+                            <span class="text-3">Not assigned</span>
+                        <?php endif; ?>
+                    </span>
+                </span>
+            </div>
+            <div class="profile-meta__item">
+                <span class="profile-meta__icon"><?= icon('clock', 14) ?></span>
+                <span>
+                    <span class="profile-meta__label">Enrolled</span>
+                    <span class="profile-meta__value"><?= e((string) $student['enrollment_year']) ?> · <?= e(format_db_date($student['enrollment_date'])) ?></span>
+                </span>
+            </div>
+        </div>
+
+        <?php if (can('enrollments.manage')): ?>
+            <a class="btn btn--primary btn--block mt-3" href="<?= e(url('enrollments/form.php?student=' . urlencode((string) $student['student_no']))) ?>">
+                <?= icon('plus', 15) ?><span>Enroll in a course</span>
+            </a>
+        <?php endif; ?>
+    </aside>
 
     <div class="stackgap">
+        <section class="stats stats--3" aria-label="Student summary">
+            <article class="stat">
+                <div class="stat__top">
+                    <span class="stat__icon"><?= icon('enrollment', 16) ?></span>
+                    <p class="stat__label">Enrollments</p>
+                </div>
+                <p class="stat__value"><?= e(format_number($enrollmentCount)) ?></p>
+                <p class="stat__foot">Courses registered in the record</p>
+            </article>
+            <article class="stat">
+                <div class="stat__top">
+                    <span class="stat__icon stat__icon--blue"><?= icon('grades', 16) ?></span>
+                    <p class="stat__label">Marks recorded</p>
+                </div>
+                <p class="stat__value"><?= e(format_number((int) ($gradeSummary['grade_count'] ?? 0))) ?></p>
+                <p class="stat__foot">Across every assessment</p>
+            </article>
+            <article class="stat">
+                <div class="stat__top">
+                    <span class="stat__icon stat__icon--peach"><?= icon('award', 16) ?></span>
+                    <p class="stat__label">Average mark</p>
+                </div>
+                <p class="stat__value">
+                    <?= ($gradeSummary['average'] ?? null) !== null ? e(format_marks($gradeSummary['average'])) : '—' ?>
+                </p>
+                <p class="stat__foot">
+                    <?php if (($gradeSummary['average'] ?? null) !== null): ?>
+                        <?= grade_badge(grade_letter((float) $gradeSummary['average'])) ?>
+                        <span>current standing</span>
+                    <?php else: ?>
+                        <span>No marks yet</span>
+                    <?php endif; ?>
+                </p>
+            </article>
+        </section>
 
         <section class="panel">
             <div class="panel__head">
@@ -160,16 +255,6 @@ foreach ($enrollments as $enrollment) {
             </div>
         </section>
 
-        <?php if (can('enrollments.manage')): ?>
-            <section class="panel">
-                <div class="panel__body">
-                    <a class="btn btn--default" href="<?= e(url('enrollments/form.php?student=' . urlencode((string) $student['student_no']))) ?>">
-                        <?= icon('plus', 15) ?><span>Enroll in a course</span>
-                    </a>
-                </div>
-            </section>
-        <?php endif; ?>
-
         <?php if ($recentGrades !== []): ?>
             <section class="panel">
                 <div class="panel__head">
@@ -177,106 +262,62 @@ foreach ($enrollments as $enrollment) {
                         <h2 class="panel__title">Recent marks</h2>
                         <p class="panel__sub">The most recently recorded assessments</p>
                     </div>
+                    <a class="panel__action btn btn--quiet btn--sm" href="<?= e(url('grades/index.php?student=' . urlencode((string) $student['student_no']))) ?>">View all</a>
                 </div>
-                <div class="panel__body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <?= th('Course') ?>
-                                <?= th('Assessment') ?>
-                                <?= th('Marks', 'num') ?>
-                                <?= th('Grade', 'num') ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php foreach ($recentGrades as $grade): ?>
-                            <tr>
-                                <td>
-                                    <a class="table__name" href="<?= e(url('enrollments/view.php?id=' . (int) $grade['enrollment_id'])) ?>">
-                                        <?= e($grade['course_code']) ?>
-                                    </a>
-                                </td>
-                                <td class="text-3"><?= e($grade['assessment']) ?></td>
-                                <td class="num"><?= e(format_marks($grade['marks'])) ?></td>
-                                <td class="num"><?= grade_badge($grade['letter_grade']) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <a class="text-sm inline-link" href="<?= e(url('grades/index.php?student=' . urlencode((string) $student['student_no']))) ?>">View all grades…</a>
+                <div class="panel__body panel__body--flush">
+                    <div class="tablewrap" style="border:0;box-shadow:none;border-radius:0">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <?= th('Course') ?>
+                                    <?= th('Assessment') ?>
+                                    <?= th('Marks', 'num') ?>
+                                    <?= th('Grade', 'num') ?>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($recentGrades as $grade): ?>
+                                <tr>
+                                    <td>
+                                        <a class="table__name" href="<?= e(url('enrollments/view.php?id=' . (int) $grade['enrollment_id'])) ?>">
+                                            <?= e($grade['course_code']) ?>
+                                        </a>
+                                        <span class="table__sub"><?= e($grade['academic_year']) ?> · <?= e($grade['semester']) ?></span>
+                                    </td>
+                                    <td class="text-3"><?= e($grade['assessment']) ?></td>
+                                    <td class="num"><?= e(format_marks($grade['marks'])) ?></td>
+                                    <td class="num"><?= grade_badge($grade['letter_grade']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
         <?php endif; ?>
-
-    </div>
-
-    <div class="stackgap">
-
-        <section class="panel">
-            <div class="panel__head">
-                <div class="panel__titles">
-                    <h2 class="panel__title">Programme</h2>
-                </div>
-            </div>
-            <div class="panel__body">
-                <?php render_deflist([
-                    ['term' => 'Faculty', 'desc' => $programme !== null
-                        ? '<a href="' . e(url('faculties/view.php?id=' . (int) $student['faculty_id'])) . '">'
-                            . e($programme['faculty_name']) . '</a>'
-                        : '<span class="text-3">Not assigned</span>'],
-                    ['term' => 'Department', 'desc' => $programme !== null
-                        ? '<a href="' . e(url('departments/view.php?id=' . (int) $student['department_id'])) . '">'
-                            . e($programme['department_name']) . '</a>'
-                        : '<span class="text-3">Not assigned</span>'],
-                    ['term' => 'Enrollment year', 'desc' => e((string) $student['enrollment_year'])],
-                    ['term' => 'Enrollment date', 'desc' => e(format_db_date($student['enrollment_date']))],
-                ]); ?>
-            </div>
-        </section>
 
         <section class="panel">
             <div class="panel__head">
                 <div class="panel__titles">
                     <h2 class="panel__title">Record</h2>
+                    <p class="panel__sub">Identity and programme information</p>
                 </div>
             </div>
             <div class="panel__body">
                 <?php render_deflist([
+                    ['term' => 'Full name', 'desc' => e($name)],
                     ['term' => 'Reference', 'desc' => '<span class="table__id">' . e($student['student_no']) . '</span>'],
-                    ['term' => 'Name', 'desc' => e($name)],
+                    ['term' => 'Faculty', 'desc' => $programme !== null
+                        ? '<a href="' . e(url('faculties/view.php?id=' . (int) $student['faculty_id'])) . '">' . e($programme['faculty_name']) . '</a>'
+                        : '<span class="text-3">Not assigned</span>'],
+                    ['term' => 'Department', 'desc' => $programme !== null
+                        ? '<a href="' . e(url('departments/view.php?id=' . (int) $student['department_id'])) . '">' . e($programme['department_name']) . '</a>'
+                        : '<span class="text-3">Not assigned</span>'],
                     ['term' => 'Gender', 'desc' => e(humanize($student['gender']))],
-                    ['term' => 'Date of birth', 'desc' => e(format_db_date($student['date_of_birth']))
-                        . ($student['date_of_birth'] !== null ? ' · age ' . e((string) age_from($student['date_of_birth'])) : '')],
-                    ['term' => 'Email', 'desc' => '<a class="strong" href="mailto:' . e($student['email']) . '">'
-                        . e($student['email']) . '</a>'],
-                    ['term' => 'Phone', 'desc' => $student['phone'] !== null
-                        ? e($student['phone']) : '<span class="text-3">Not recorded</span>'],
                     ['term' => 'Status', 'desc' => badge($student['status'])],
                 ]); ?>
             </div>
         </section>
-
-        <section class="panel">
-            <div class="panel__head">
-                <div class="panel__titles">
-                    <h2 class="panel__title">Summary</h2>
-                    <p class="panel__sub">Across every recorded assessment</p>
-                </div>
-            </div>
-            <div class="panel__body">
-                <?php render_deflist([
-                    ['term' => 'Enrolments', 'desc' => $enrollmentCount > 0
-                        ? '<a href="' . e(url('enrollments/index.php?student=' . urlencode((string) $student['student_no']))) . '">'
-                            . e(format_number($enrollmentCount)) . '</a>'
-                        : '<span class="text-3">None</span>'],
-                    ['term' => 'Marks recorded', 'desc' => e(format_number((int) ($gradeSummary['grade_count'] ?? 0)))],
-                    ['term' => 'Average mark', 'desc' => ($gradeSummary['average'] ?? null) !== null
-                        ? e(format_marks($gradeSummary['average'])) . ' · ' . grade_badge(grade_letter((float) $gradeSummary['average']))
-                        : '<span class="text-3">No marks yet</span>'],
-                ]); ?>
-            </div>
-        </section>
-
     </div>
 </div>
 

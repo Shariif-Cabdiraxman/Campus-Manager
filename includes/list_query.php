@@ -35,6 +35,23 @@ function query_int(string $key, int $default = 0): int
 }
 
 /**
+ * Turn a module-relative list path into an absolute URL.
+ *
+ * Lists live inside a module directory, so a raw "students/index.php" action
+ * would resolve to "students/students/index.php" when submitted. Every action,
+ * reset link and pager target is routed through here so the base path is
+ * applied exactly once.
+ */
+function list_url(string $path): string
+{
+    if (preg_match('#^https?://#i', $path) === 1 || str_starts_with($path, BASE_URL)) {
+        return $path;
+    }
+
+    return url($path);
+}
+
+/**
  * Escape the LIKE wildcards in a search term.
  *
  * The term is passed to the database as a bound parameter, so it cannot inject
@@ -164,9 +181,11 @@ function render_page_head(array $options): void
     ?>
     <header class="pagehead">
         <div class="pagehead__text">
-            <?php if (!empty($options['eyebrow'])): ?>
-                <p class="pagehead__eyebrow"><?= e($options['eyebrow']) ?></p>
-            <?php endif; ?>
+            <nav class="pagehead__crumbs" aria-label="Breadcrumb">
+                <a href="<?= e(url('dashboard.php')) ?>">Dashboard</a>
+                <span class="pagehead__crumbsep" aria-hidden="true">/</span>
+                <span aria-current="page"><?= e($options['eyebrow'] ?? $options['title']) ?></span>
+            </nav>
             <h1 class="pagehead__title"><?= e($options['title']) ?></h1>
             <?php if (!empty($options['subtitle'])): ?>
                 <p class="pagehead__subtitle"><?= e($options['subtitle']) ?></p>
@@ -203,7 +222,7 @@ function render_list_toolbar(array $options): void
         return;
     }
     ?>
-    <form class="toolbar" method="get" action="<?= e($options['action']) ?>" role="search">
+    <form class="toolbar" method="get" action="<?= e(list_url($options['action'])) ?>" role="search">
         <?php foreach ($hidden as $name => $value): ?>
             <input type="hidden" name="<?= e($name) ?>" value="<?= e((string) $value) ?>">
         <?php endforeach; ?>
@@ -229,7 +248,7 @@ function render_list_toolbar(array $options): void
             <?php endif; ?>
             <button class="btn btn--default" type="submit"><?= icon('search', 15) ?><span>Search</span></button>
             <?php if (list_is_filtered()): ?>
-                <a class="btn btn--quiet" href="<?= e($options['action']) ?>">Reset</a>
+                <a class="btn btn--quiet" href="<?= e(list_url($options['action'])) ?>">Reset</a>
             <?php endif; ?>
         </div>
     </form>
@@ -263,7 +282,7 @@ function render_mobile_list_toolbar(array $options, string $filters, array $hidd
 {
     $active = list_active_filters();
     ?>
-    <form class="msearch" method="get" action="<?= e($options['action']) ?>" role="search">
+    <form class="msearch" method="get" action="<?= e(list_url($options['action'])) ?>" role="search">
         <?php foreach ($hidden as $name => $value): ?>
             <input type="hidden" name="<?= e($name) ?>" value="<?= e((string) $value) ?>">
         <?php endforeach; ?>
@@ -276,7 +295,7 @@ function render_mobile_list_toolbar(array $options, string $filters, array $hidd
                    placeholder="<?= e($options['placeholder']) ?>"
                    enterkeyhint="search" autocomplete="off">
             <?php if (query_string('q') !== ''): ?>
-                <a class="msearch__clear" href="<?= e($options['action'] . with_query(['q' => null])) ?>"
+                <a class="msearch__clear" href="<?= e(list_url($options['action']) . with_query(['q' => null])) ?>"
                    aria-label="Clear the search"><?= icon('x', 15) ?></a>
             <?php endif; ?>
         </div>
@@ -294,7 +313,7 @@ function render_mobile_list_toolbar(array $options, string $filters, array $hidd
                     <?= $filters ?>
                     <div class="mfilters__actions">
                         <button class="btn btn--primary btn--sm" type="submit">Apply</button>
-                        <a class="btn btn--quiet btn--sm" href="<?= e($options['action']) ?>">Reset</a>
+                        <a class="btn btn--quiet btn--sm" href="<?= e(list_url($options['action'])) ?>">Reset</a>
                     </div>
                 </div>
             </details>
@@ -365,7 +384,7 @@ function render_list_footer(array $page, string $path, array $opts = []): void
         </p>
 
         <div class="listfoot__controls">
-            <form class="perpage" method="get" action="<?= e($path) ?>">
+            <form class="perpage" method="get" action="<?= e(list_url($path)) ?>">
                 <?php foreach ($_GET as $k => $v): ?>
                     <?php if ($k === 'per_page' || $k === 'page' || is_array($v)) continue; ?>
                     <input type="hidden" name="<?= e((string) $k) ?>" value="<?= e((string) $v) ?>">
@@ -403,7 +422,7 @@ function render_pager_links(array $page, string $path): string
 
         $aria = $current ? ' aria-current="page"' : '';
         return '<a class="' . e($classList) . '" href="'
-            . e($path . with_query(['page' => $target > 1 ? $target : null])) . '"' . $aria . '>' . $label . '</a>';
+            . e(list_url($path) . with_query(['page' => $target > 1 ? $target : null])) . '"' . $aria . '>' . $label . '</a>';
     };
 
     $html .= $link($current - 1, icon('chevron-left', 14), 'pager__arrow', $current === 1);
@@ -455,7 +474,7 @@ function render_mobile_list_footer(array $page, string $path, array $opts = []):
     $pages = max(1, (int) $page['pages']);
     $current = (int) $page['page'];
     $step = function (int $target) use ($path): string {
-        return e($path . with_query(['page' => $target > 1 ? $target : null]));
+        return e(list_url($path) . with_query(['page' => $target > 1 ? $target : null]));
     };
     ?>
     <div class="mpager">
@@ -547,7 +566,7 @@ function render_readonly_notice(string $permission, string $moduleNoun = 'sectio
  */
 function render_delete_form(string $postTo, int $id, string $label = 'Delete'): string
 {
-    return '<form class="deletefrom" method="post" action="' . e($postTo) . '">'
+    return '<form class="deletefrom" method="post" action="' . e(list_url($postTo)) . '">'
         . csrf_field()
         . '<input type="hidden" name="action" value="delete">'
         . '<input type="hidden" name="delete_id" value="' . e((string) $id) . '">'

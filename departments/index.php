@@ -150,7 +150,7 @@ if ($rows === []) {
 } else {
     ?>
     <div class="tablewrap">
-        <table class="table">
+        <table class="table table--fit">
             <thead>
                 <tr>
                     <?= th_sort('code', 'Code', $sort) ?>

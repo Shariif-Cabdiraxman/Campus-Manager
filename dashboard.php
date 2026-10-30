@@ -27,15 +27,15 @@ $semester = current_semester();
 // ---------------------------------------------------------------------
 
 $totals = [
-    'students'      => table_count('students'),
-    'students_active' => table_count('students', '`status` = \'active\''),
-    'faculties'     => table_count('faculties'),
-    'departments'   => table_count('departments'),
-    'lecturers'     => table_count('lecturers'),
+    'students'         => table_count('students'),
+    'students_active'  => table_count('students', '`status` = \'active\''),
+    'faculties'        => table_count('faculties'),
+    'departments'      => table_count('departments'),
+    'lecturers'        => table_count('lecturers'),
     'lecturers_active' => table_count('lecturers', '`status` = \'active\''),
-    'courses'       => table_count('courses'),
-    'enrollments'   => table_count('enrollments'),
-    'users'         => table_count('users', '`status` = \'active\''),
+    'courses'          => table_count('courses'),
+    'enrollments'      => table_count('enrollments'),
+    'users'            => table_count('users', '`status` = \'active\''),
 ];
 
 $termEnrollments = (int) db_value(
@@ -53,7 +53,8 @@ $gradeRows = db_all(
             COUNT(*)         AS `n`,
             ROUND(AVG(`marks`), 2) AS `avg_marks`
        FROM `grades`
-      GROUP BY `letter_grade`'
+      GROUP BY `letter_grade`
+      ORDER BY `letter_grade`'
 );
 
 $distribution = [];
@@ -94,12 +95,20 @@ $facultyRows = db_all(
 );
 
 $facultyChart = [];
+$facultyDonut = [];
 foreach ($facultyRows as $row) {
     $facultyChart[] = [
         'label' => $row['name'],
         'value' => (int) $row['n'],
         'href'  => url('students/index.php?faculty=' . (int) $row['id']),
     ];
+
+    if ((int) $row['n'] > 0) {
+        $facultyDonut[] = [
+            'label' => $row['name'],
+            'value' => (int) $row['n'],
+        ];
+    }
 }
 
 $maxFaculty = $facultyChart === [] ? 1 : max(array_column($facultyChart, 'value'));
@@ -131,6 +140,45 @@ foreach ($termRows as $row) {
 }
 
 // ---------------------------------------------------------------------
+// Enrollment trend by academic year
+// ---------------------------------------------------------------------
+
+$trendRows = db_all(
+    'SELECT `academic_year`, COUNT(*) AS `n`
+       FROM `enrollments`
+      GROUP BY `academic_year`
+      ORDER BY `academic_year`'
+);
+
+$trend = [];
+$aYearTotal = 0;
+foreach ($trendRows as $row) {
+    $parts = explode('/', (string) $row['academic_year']);
+    $label = count($parts) === 2
+        ? substr($parts[0], -2) . '/' . substr($parts[1], -2)
+        : (string) $row['academic_year'];
+
+    $trend[] = ['label' => $label, 'value' => (int) $row['n'], 'year' => (string) $row['academic_year']];
+    $aYearTotal += (int) $row['n'];
+}
+
+$latestYear    = $trend === [] ? '' : (string) end($trend)['year'];
+$isCurrentYear = $latestYear === $year;
+$latest        = $trend === [] ? 0 : (int) end($trend)['value'];
+$before        = count($trend) > 1 ? (int) $trend[count($trend) - 2]['value'] : 0;
+
+// Comparing a year that is still being recorded against a finished one
+// produces a misleading drop, so only show growth for completed years.
+$growth = (!$isCurrentYear && $before > 0)
+    ? round((($latest - $before) / $before) * 100, 1)
+    : null;
+
+$currentYearParts = explode('/', $year);
+$currentYearLabel = count($currentYearParts) === 2
+    ? substr($currentYearParts[0], -2) . '/' . substr($currentYearParts[1], -2)
+    : $year;
+
+// ---------------------------------------------------------------------
 // Courses by semester
 // ---------------------------------------------------------------------
 
@@ -142,6 +190,23 @@ $semesterCounts = ['Semester 1' => 0, 'Semester 2' => 0];
 foreach ($semesterRows as $row) {
     $semesterCounts[$row['semester']] = (int) $row['n'];
 }
+
+// ---------------------------------------------------------------------
+// Records this month, for the calendar
+// ---------------------------------------------------------------------
+
+$monthStart = date('Y-m-01');
+$monthEnd   = date('Y-m-t');
+
+$monthRows = db_all(
+    'SELECT DISTINCT DAY(`enrollment_date`) AS `day`
+       FROM `enrollments`
+      WHERE `enrollment_date` BETWEEN ? AND ?',
+    'ss',
+    [$monthStart, $monthEnd]
+);
+
+$eventDays = array_map(static fn (array $row): int => (int) $row['day'], $monthRows);
 
 // ---------------------------------------------------------------------
 // Recent activity
@@ -183,113 +248,138 @@ layout_start('Dashboard', 'dashboard');
 ?>
 
 <?php render_page_head([
-    'eyebrow' => 'Registrar overview',
+    'eyebrow' => 'Overview',
     'title'   => $greeting . ', ' . explode(' ', $user['full_name'])[0],
     'subtitle' => 'Here is where the university record stands today.',
     'meta'    => e(date('l, j F Y')) . ' &middot; ' . e($year) . ' &middot; ' . e($semester),
-    'actions' => '<a class="btn btn--primary" href="' . e(url('students/index.php')) . '">' . icon('student', 16) . '<span>Student records</span></a>',
+    'actions' => '<a class="btn btn--quiet" href="' . e(url('announcements/form.php')) . '">' . icon('plus', 15) . '<span>New notice</span></a>'
+        . '<a class="btn btn--primary" href="' . e(url('students/index.php')) . '">' . icon('student', 15) . '<span>Student records</span></a>',
 ]); ?>
 
 <section class="stats" aria-label="Headline figures">
     <article class="stat">
         <div class="stat__top">
-            <span class="stat__icon"><?= icon('student', 16) ?></span>
+            <span class="stat__icon"><?= icon('student', 17) ?></span>
             <p class="stat__label">Students</p>
         </div>
         <p class="stat__value"><?= e(format_number($totals['students'])) ?></p>
         <p class="stat__foot">
-            <span class="stat__delta stat__delta--up"><?= e(format_number($totals['students_active'])) ?> active</span>
-            <span>of <?= e(format_number($totals['students'])) ?> total</span>
+            <span class="stat__delta stat__delta--up"><?= icon('trending', 11) ?><?= e(format_number($totals['students_active'])) ?> active</span>
+            <span>of <?= e(format_number($totals['students'])) ?> on the register</span>
         </p>
     </article>
 
     <article class="stat">
         <div class="stat__top">
-            <span class="stat__icon"><?= icon('faculty', 16) ?></span>
-            <p class="stat__label">Structure</p>
-        </div>
-        <p class="stat__value"><?= e((string) $totals['faculties']) ?> <span class="text-3" style="font-size:.5em">/ <?= e((string) $totals['departments']) ?></span></p>
-        <p class="stat__foot"><?= e(ucfirst((string) $totals['faculties'])) ?> faculties, <?= e((string) $totals['departments']) ?> departments</p>
-    </article>
-
-    <article class="stat">
-        <div class="stat__top">
-            <span class="stat__icon"><?= icon('course', 16) ?></span>
-            <p class="stat__label">Courses</p>
-        </div>
-        <p class="stat__value"><?= e(format_number($totals['courses'])) ?></p>
-        <p class="stat__foot">
-            <?= e((string) $semesterCounts['Semester 1']) ?> in Semester 1 &middot;
-            <?= e((string) $semesterCounts['Semester 2']) ?> in Semester 2
-        </p>
-    </article>
-
-    <article class="stat">
-        <div class="stat__top">
-            <span class="stat__icon"><?= icon('enrollment', 16) ?></span>
+            <span class="stat__icon stat__icon--blue"><?= icon('enrollment', 17) ?></span>
             <p class="stat__label">Enrollments this term</p>
         </div>
         <p class="stat__value"><?= e(format_number($termEnrollments)) ?></p>
         <p class="stat__foot">
+            <span><?= e($semester) ?></span>
+            <span>&middot;</span>
             <span><?= e(format_number($totals['enrollments'])) ?> recorded in total</span>
+        </p>
+    </article>
+
+    <article class="stat">
+        <div class="stat__top">
+            <span class="stat__icon stat__icon--violet"><?= icon('course', 17) ?></span>
+            <p class="stat__label">Courses</p>
+        </div>
+        <p class="stat__value"><?= e(format_number($totals['courses'])) ?></p>
+        <p class="stat__foot">
+            <span><?= e((string) $semesterCounts['Semester 1']) ?> in Semester 1</span>
+            <span>&middot;</span>
+            <span><?= e((string) $semesterCounts['Semester 2']) ?> in Semester 2</span>
+        </p>
+    </article>
+
+    <article class="stat">
+        <div class="stat__top">
+            <span class="stat__icon stat__icon--peach"><?= icon('grades', 17) ?></span>
+            <p class="stat__label">Average mark</p>
+        </div>
+        <p class="stat__value"><?= e(number_format($gradeAverage, 1)) ?><small> / 100</small></p>
+        <p class="stat__foot">
+            <span class="stat__delta stat__delta--up"><?= e(number_format($passRate, 1)) ?>% pass rate</span>
+            <span><?= e(format_number($gradeTotal)) ?> marks recorded</span>
         </p>
     </article>
 </section>
 
-<div class="split split--wide mb-3">
-
+<div class="dash-main">
     <section class="panel">
         <div class="panel__head">
             <div class="panel__titles">
-                <h2 class="panel__title">Active students by faculty</h2>
-                <p class="panel__sub">Students with the status <em>active</em>, grouped by faculty</p>
+                <h2 class="panel__title">Enrollment activity</h2>
+                <p class="panel__sub">Registrations recorded across every academic year</p>
             </div>
-            <a class="panel__action btn btn--quiet btn--sm" href="<?= e(url('faculties/index.php')) ?>">View faculties</a>
+            <div class="segmented" aria-hidden="true">
+                <span class="segmented__item is-active">By year</span>
+                <span class="segmented__item">All terms</span>
+            </div>
         </div>
         <div class="panel__body">
-            <?php
-            render_bar_chart($facultyChart, [
-                'max'   => $maxFaculty,
-                'noun'  => 'student',
-                'empty' => 'No faculties have been recorded yet.',
-            ]);
-            ?>
+            <div class="dash-chart-head">
+                <div>
+                    <p class="dash-chart-value"><?= e(format_number($aYearTotal)) ?></p>
+                    <p class="dash-chart-meta">
+                        <?php if ($isCurrentYear): ?>
+                            <span class="stat__delta stat__delta--info"><?= e($currentYearLabel) ?> in progress</span>
+                        <?php elseif ($growth !== null && $growth > 0): ?>
+                            <span class="stat__delta stat__delta--up"><?= icon('trending', 10) ?><?= e(number_format($growth, 1)) ?>%</span>
+                        <?php elseif ($growth !== null && $growth < 0): ?>
+                            <span class="stat__delta stat__delta--down"><?= e(number_format($growth, 1)) ?>%</span>
+                        <?php endif; ?>
+                        total enrollments, <?= e((string) count($trend)) ?> academic years
+                    </p>
+                </div>
+                <span class="linechart__legend"><span class="linechart__key"></span>Enrollments</span>
+            </div>
+            <?php render_line_chart($trend, ['empty' => 'Enrollments will appear here as they are recorded.']); ?>
         </div>
     </section>
 
-    <section class="panel">
-        <div class="panel__head">
-            <div class="panel__titles">
-                <h2 class="panel__title">Grade distribution</h2>
-                <p class="panel__sub">Every recorded mark, all terms</p>
+    <div class="dash-side">
+        <section class="panel">
+            <div class="panel__head">
+                <div class="panel__titles">
+                    <h2 class="panel__title">Student distribution</h2>
+                    <p class="panel__sub">Active students by faculty</p>
+                </div>
             </div>
-            <a class="panel__action btn btn--quiet btn--sm" href="<?= e(url('grades/index.php')) ?>">All grades</a>
-        </div>
-        <div class="panel__body">
-            <?php render_grade_distribution($distribution, $gradeTotal); ?>
+            <div class="panel__body">
+                <?php render_donut_chart($facultyDonut, [
+                    'center' => format_number($totals['students_active']),
+                    'label'  => 'active students',
+                    'empty'  => 'No active students have been recorded yet.',
+                ]); ?>
+            </div>
+        </section>
 
-            <hr>
-
-            <?php
-            render_figures([
-                ['value' => number_format($gradeAverage, 2), 'label' => 'Average mark'],
-                ['value' => $passRate . '%', 'label' => 'Pass rate (A to C)'],
-                ['value' => number_format($gradeTotal), 'label' => 'Marks recorded'],
-            ]);
-            ?>
-        </div>
-    </section>
+        <section class="panel">
+            <div class="panel__head">
+                <div class="panel__titles">
+                    <h2 class="panel__title">Academic outcome</h2>
+                    <p class="panel__sub">A to C counts as a pass</p>
+                </div>
+            </div>
+            <div class="panel__body">
+                <?php render_circle_metric($passRate, 'Pass rate', 'Average mark ' . number_format($gradeAverage, 1)); ?>
+            </div>
+        </section>
+    </div>
 </div>
 
-<div class="split split--wide mb-3">
-
+<div class="dash-lower">
     <section class="panel">
         <div class="panel__head">
             <div class="panel__titles">
-                <h2 class="panel__title">Latest enrollments</h2>
-                <p class="panel__sub">The six most recent records added</p>
+                <h2 class="panel__title">Recent enrollments</h2>
+                <p class="panel__sub">The latest records added to the register</p>
             </div>
-            <a class="panel__action btn btn--quiet btn--sm" href="<?= e(url('enrollments/index.php')) ?>">All enrollments</a>
+            <a class="panel__action btn btn--quiet btn--sm" href="<?= e(url('enrollments/index.php')) ?>">View all</a>
         </div>
         <div class="panel__body panel__body--flush">
             <?php if ($recentEnrollments === []): ?>
@@ -343,29 +433,11 @@ layout_start('Dashboard', 'dashboard');
         </div>
     </section>
 
-    <div class="stackgap">
-
+    <div class="dash-side">
         <section class="panel">
             <div class="panel__head">
                 <div class="panel__titles">
-                    <h2 class="panel__title">Enrollments by faculty</h2>
-                    <p class="panel__sub"><?= e($semester) ?> &middot; <?= e($year) ?></p>
-                </div>
-            </div>
-            <div class="panel__body">
-                <?php
-                render_bar_chart($termChart, [
-                    'noun'  => 'enrollment',
-                    'empty' => 'No enrollments have been recorded for this term yet.',
-                ]);
-                ?>
-            </div>
-        </section>
-
-        <section class="panel">
-            <div class="panel__head">
-                <div class="panel__titles">
-                    <h2 class="panel__title">Notices</h2>
+                    <h2 class="panel__title">Notice board</h2>
                     <p class="panel__sub">Published announcements</p>
                 </div>
                 <a class="panel__action btn btn--quiet btn--sm" href="<?= e(url('announcements/index.php')) ?>">All</a>
@@ -391,10 +463,22 @@ layout_start('Dashboard', 'dashboard');
                 <?php endif; ?>
             </div>
         </section>
+
+        <section class="panel">
+            <div class="panel__head">
+                <div class="panel__titles">
+                    <h2 class="panel__title">This month</h2>
+                    <p class="panel__sub">Enrollment dates in <?= e(date('F Y')) ?></p>
+                </div>
+            </div>
+            <div class="panel__body">
+                <?php render_mini_calendar((int) date('Y'), (int) date('n'), $eventDays); ?>
+            </div>
+        </section>
     </div>
 </div>
 
-<section class="panel">
+<section class="panel mt-3">
     <div class="panel__head">
         <div class="panel__titles">
             <h2 class="panel__title">Most recently registered</h2>

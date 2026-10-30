@@ -53,7 +53,6 @@ function layout_start(string $title, string $active = 'dashboard', array $opts =
     render_document_head($title, $opts);
     render_sidebar($active);
     render_topbar($active);
-    render_flashes();
 
     // Any validation errors and re-populated values left by the previous
     // request are consumed the first time the page reads them, so there is
@@ -61,6 +60,7 @@ function layout_start(string $title, string $active = 'dashboard', array $opts =
     ?>
     <main class="content" id="content">
     <?php
+    render_flashes();
 }
 
 /** Close the page. */
