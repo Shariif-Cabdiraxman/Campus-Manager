@@ -55,11 +55,7 @@ function render_document_head(string $title, array $options = []): void
         <meta name="viewport" content="<?= e((string) ($options['viewport'] ?? 'width=device-width, initial-scale=1')) ?>">
         <meta name="description" content="<?= e($options['description'] ?? (APP_NAME . ' — ' . APP_TAGLINE)) ?>">
         <meta name="color-scheme" content="light dark">
-<<<<<<< HEAD
         <meta name="theme-color" content="#12283d">
-=======
-        <meta name="theme-color" content="#171129">
->>>>>>> 61708e7 (Updated project files)
         <title><?= e($fullTitle) ?></title>
 
         <link rel="icon" href="<?= e(url('assets/img/favicon.svg')) ?>" type="image/svg+xml">
@@ -100,11 +96,7 @@ function render_standalone_head(string $title, array $options = []): void
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="color-scheme" content="light dark">
-<<<<<<< HEAD
         <meta name="theme-color" content="#12283d">
-=======
-        <meta name="theme-color" content="#171129">
->>>>>>> 61708e7 (Updated project files)
         <meta name="robots" content="noindex">
         <title><?= e($fullTitle) ?></title>
         <link rel="icon" href="<?= e(url('assets/img/favicon.svg')) ?>" type="image/svg+xml">

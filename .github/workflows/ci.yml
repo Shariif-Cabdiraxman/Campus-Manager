@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'codex/**']
   pull_request:
     branches: [main]
 
@@ -22,12 +22,19 @@ jobs:
 
       - name: PHP syntax check
         run: |
-          find . -name '*.php' -not -path './vendor/*' -exec php -l {} \; | grep -v '^No syntax errors' || true
+          find . -type d \( -name .git -o -name vendor \) -prune -o -type f -name '*.php' -print0 \
+            | xargs -0 -r -n1 php -l
 
       - name: Check for trailing whitespace
         run: |
           if grep -r '[[:space:]]$' --include='*.php' --include='*.css' --include='*.js' .; then
             echo "Trailing whitespace found"
+            exit 1
+          fi
+      - name: Check for unresolved merge markers
+        run: |
+          if grep -rEn '^(<<<<<<< |>>>>>>>)' --exclude-dir=.git --include='*.php' --include='*.css' --include='*.js' --include='*.yml' .; then
+            echo "Unresolved merge markers found"
             exit 1
           fi
 
@@ -65,24 +72,41 @@ jobs:
 
       - name: Configure database
         run: |
-          cat > config/database.php <<'EOF'
-          <?php
-          define('DB_HOST', '127.0.0.1');
-          define('DB_PORT', 3306);
-          define('DB_NAME', 'university_management');
-          define('DB_USER', 'root');
-          define('DB_PASS', 'root');
-          EOF
+          cp config/database.example.php config/database.php
 
-      - name: Run desktop smoke tests
+      - name: Run desktop and mobile smoke suites
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: university_management
+          DB_USER: root
+          DB_PASS: root
+          UMS_BASE_URL: http://127.0.0.1:8080
+          UMS_MYSQL: /usr/bin/mysql
+          UMS_DB_USER: root
+          UMS_DB_PASS: root
+          UMS_DB_HOST: 127.0.0.1
+          UMS_DB_PORT: 3306
         run: |
-          # Note: PowerShell smoke tests need adaptation for Linux
-          # This is a placeholder - the actual smoke tests are PowerShell-based
-          echo "Desktop smoke tests would run here"
+          php -S 127.0.0.1:8080 -t . > /tmp/hagmah-php-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
 
-      - name: Run mobile smoke tests
-        run: |
-          echo "Mobile smoke tests would run here"
+          ready=0
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error "$UMS_BASE_URL/auth/login.php" > /dev/null; then
+              ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/hagmah-php-server.log
+            exit 1
+          fi
+
+          pwsh -NoLogo -NoProfile -File tools/smoke_modules.ps1
+          pwsh -NoLogo -NoProfile -File tools/smoke_mobile.ps1
 
   security:
     name: Security Scan
@@ -92,9 +116,10 @@ jobs:
 
       - name: Check for hardcoded secrets
         run: |
-          # Basic secret patterns
-          if grep -r "password\s*=" --include="*.php" --include="*.env*" . | grep -v "password_hash" | grep -v "DB_PASS" | grep -v "example" | grep -v ".gitignore"; then
-            echo "Potential hardcoded secrets found"
+          # Match likely secret literals, not request variables or HTML attributes.
+          if grep -rPn --include='*.php' --exclude-dir=.git --exclude-dir=vendor \
+            '\$[A-Za-z_][A-Za-z0-9_]*(password|passwd|secret|token|api_key)[A-Za-z0-9_]*\s*=\s*["\x27][^"\x27]{8,}' .; then
+            echo "Potential hardcoded secret literal found"
             exit 1
           fi
 
@@ -103,11 +128,4 @@ jobs:
           if ! grep -q "Content-Security-Policy" includes/init.php; then
             echo "CSP header missing from init.php"
             exit 1
-          fi
-
-      - name: Check prepared statements usage
-        run: |
-          # Ensure no direct query concatenation with variables
-          if grep -r 'db_query\|db_execute\|db_row\|db_all\|db_value' --include="*.php" . | grep -v "prepare\|bind_param\|?"; then
-            echo "Potential raw query usage found - review needed"
           fi

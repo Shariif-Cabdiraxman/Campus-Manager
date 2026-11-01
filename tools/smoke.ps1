@@ -32,7 +32,9 @@
 # answers with its mobile shell.
 
 $Global:Base = if ($env:UMS_BASE_URL) { $env:UMS_BASE_URL } else { "http://localhost/university-management-system" }
-$Global:Jar  = Join-Path $env:TEMP "hagmah-cookies.txt"
+$tempRoot = if ($env:TEMP) { $env:TEMP } elseif ($env:TMPDIR) { $env:TMPDIR } else { [IO.Path]::GetTempPath() }
+$Global:Jar  = Join-Path $tempRoot "hagmah-cookies.txt"
+$Global:CurlExe = $null
 
 # --- plumbing ---------------------------------------------------------------
 
@@ -50,12 +52,25 @@ function Find-Mysql {
     }
 
     $onPath = Get-Command mysql.exe -ErrorAction SilentlyContinue
-    if ($onPath) {
+    if (-not $onPath) { $onPath = Get-Command mysql -ErrorAction SilentlyContinue }
+    if ($onPath -and $onPath.CommandType -eq 'Application') {
         $Global:MysqlExe = $onPath.Source
         return $Global:MysqlExe
     }
 
-    throw "mysql.exe not found. Set `$env:UMS_MYSQL to its full path."
+    throw "mysql not found. Set `$env:UMS_MYSQL to its full path."
+}
+
+function Find-Curl {
+    if ($Global:CurlExe) { return $Global:CurlExe }
+    foreach ($name in @('curl.exe', 'curl')) {
+        $command = Get-Command $name -ErrorAction SilentlyContinue
+        if ($command -and $command.CommandType -eq 'Application') {
+            $Global:CurlExe = $command.Source
+            return $Global:CurlExe
+        }
+    }
+    throw "curl not found. Install curl or add it to PATH."
 }
 
 function Reset-Session {
@@ -72,7 +87,7 @@ function Http-Get {
     $args += (Curl-ExtraCookie $Cookie)
     $args += (Curl-Headers $Headers)
     $args += $url
-    $out = & curl.exe @args
+    $out = & (Find-Curl) @args
     return (Split-Http $out)
 }
 
@@ -91,7 +106,7 @@ function Http-Post {
         $args += ("{0}={1}" -f $key, $Body[$key])
     }
     $args += $url
-    $out = & curl.exe @args
+    $out = & (Find-Curl) @args
     return (Split-Http $out)
 }
 
@@ -210,7 +225,9 @@ function Table-Row-Count {
 function Db {
     param([string]$Query)
     $mysql = Find-Mysql
-    $args = @("-u", $(if ($env:UMS_DB_USER) { $env:UMS_DB_USER } else { "root" }))
+    $dbHost = if ($env:UMS_DB_HOST) { $env:UMS_DB_HOST } else { '127.0.0.1' }
+    $dbPort = if ($env:UMS_DB_PORT) { $env:UMS_DB_PORT } else { '3306' }
+    $args = @('-h', $dbHost, '-P', $dbPort, '-u', $(if ($env:UMS_DB_USER) { $env:UMS_DB_USER } else { 'root' }))
     if ($env:UMS_DB_PASS) { $args += "-p$($env:UMS_DB_PASS)" }
     $args += @("-N", "-e", $Query)
     return (& $mysql @args)

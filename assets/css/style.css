@@ -27,7 +27,6 @@
    ========================================================================== */
 
 :root {
-<<<<<<< HEAD
     /* Surfaces: cool slate with clean white panels */
     --bg: #edf2f7;
     --bg-sunken: #dfe7f0;
@@ -71,58 +70,6 @@
     --sidebar-active-fg: #ffffff;
     --sidebar-border: #284158;
     --sidebar-count: #284158;
-=======
-    /* Surfaces */
-    --bg: #f3f0fa;
-    --bg-sunken: #e9e4f5;
-    --surface: #ffffff;
-    --surface-2: #f7f5fc;
-    --surface-3: #efeaf9;
-    --surface-tint: #fbfaff;
-    --border: #e8e2f2;
-    --border-strong: #d7cfe8;
-
-    /* Text */
-    --text: #1c1730;
-    --text-2: #5c5672;
-    --text-3: #8f89a3;
-
-    /* Electric violet + lime */
-    --primary: #6d3bff;
-    --primary-hover: #5b2bea;
-    --primary-dark: #3d1d9e;
-    --primary-deep: #2c1275;
-    --primary-soft: #ede8ff;
-    --primary-wash: #f4f0ff;
-    --primary-fg: #ffffff;
-    --mint: #ede8ff;
-    --mint-strong: #e1d8ff;
-
-    /* Accent series used by charts */
-    --chart-1: #6d3bff;
-    --chart-2: #ff4d8d;
-    --chart-3: #c6f24e;
-    --chart-4: #3fd9c4;
-    --chart-5: #ffb020;
-
-    /* Status tones */
-    --ok-fg: #0e7a5b;      --ok-bg: #e3f8ee;      --ok-bd: #c1ecd9;
-    --warn-fg: #9a5b00;    --warn-bg: #fff3df;    --warn-bd: #f3d9ab;
-    --danger-fg: #b4233a;  --danger-bg: #fdecef;  --danger-bd: #f5ccd5;
-    --info-fg: #1c64d9;    --info-bg: #e8f0fe;    --info-bd: #c9dbfa;
-    --neutral-fg: #6a6478; --neutral-bg: #f1eff6; --neutral-bd: #e2dfea;
-    --accent-fg: #9a2f6e;  --accent-bg: #fbeaf4;  --accent-bd: #f1cfe4;
-
-    /* Sidebar */
-    --sidebar-bg: #171129;
-    --sidebar-fg: #e9e4f7;
-    --sidebar-dim: #a79fbe;
-    --sidebar-hover: #241a3d;
-    --sidebar-active: #2b1f4d;
-    --sidebar-active-fg: #c6f24e;
-    --sidebar-border: #2a2140;
-    --sidebar-count: #241a3d;
->>>>>>> 61708e7 (Updated project files)
 
     /* Type */
     --font-display: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -130,7 +77,6 @@
     --font-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Code', Consolas, monospace;
 
     /* Metrics */
-<<<<<<< HEAD
     --sidebar-w: 220px;
     --rail-w: 76px;
     --topbar-h: 58px;
@@ -139,17 +85,6 @@
     --radius-sm: 4px;
     --radius: 6px;
     --radius-lg: 10px;
-=======
-    --sidebar-w: 218px;
-    --rail-w: 78px;
-    --topbar-h: 64px;
-    --content-max: 1480px;
-    --radius-xs: 4px;
-    --radius-sm: 6px;
-    --radius: 10px;
-    --radius-lg: 12px;
-    --radius-xl: 16px;
->>>>>>> 61708e7 (Updated project files)
 
     /* Elevation: barely-there, never heavy */
     --shadow-sm: 0 1px 2px rgba(28, 23, 48, 0.04);
@@ -160,7 +95,6 @@
 }
 
 [data-theme='dark'] {
-<<<<<<< HEAD
     --bg: #0e1823;
     --bg-sunken: #09111a;
     --surface: #152231;
@@ -198,52 +132,6 @@
     --sidebar-active-fg: #ffffff;
     --sidebar-border: #20364a;
     --sidebar-count: #20364a;
-=======
-    --bg: #0d0a17;
-    --bg-sunken: #090611;
-    --surface: #161126;
-    --surface-2: #1c1630;
-    --surface-3: #241c3c;
-    --surface-tint: #19132b;
-    --border: #2e2744;
-    --border-strong: #40375c;
-
-    --text: #f0ecfa;
-    --text-2: #b4acc9;
-    --text-3: #8880a0;
-
-    --primary: #a78bfa;
-    --primary-hover: #b9a2ff;
-    --primary-dark: #cbb8ff;
-    --primary-deep: #e0d4ff;
-    --primary-soft: #241a3d;
-    --primary-wash: #1e1733;
-    --primary-fg: #140b2b;
-    --mint: #241a3d;
-    --mint-strong: #2d2149;
-
-    --chart-1: #a78bfa;
-    --chart-2: #ff7aa8;
-    --chart-3: #d4ff6e;
-    --chart-4: #5eead4;
-    --chart-5: #ffc145;
-
-    --ok-fg: #7ee2b8;      --ok-bg: #12271f;      --ok-bd: #24483a;
-    --warn-fg: #f0c879;    --warn-bg: #2a2214;    --warn-bd: #4a3b22;
-    --danger-fg: #ff9fac;  --danger-bg: #2c161f;  --danger-bd: #4d2733;
-    --info-fg: #9fc5ff;    --info-bg: #141f33;    --info-bd: #293c5c;
-    --neutral-fg: #b0a8c2; --neutral-bg: #1b1728; --neutral-bd: #332c47;
-    --accent-fg: #f0a8d6;  --accent-bg: #2a1626;  --accent-bd: #4b2a41;
-
-    --sidebar-bg: #100b1d;
-    --sidebar-fg: #e9e4f7;
-    --sidebar-dim: #9b92b2;
-    --sidebar-hover: #1d1533;
-    --sidebar-active: #2a1e49;
-    --sidebar-active-fg: #d4ff6e;
-    --sidebar-border: #251d3b;
-    --sidebar-count: #1d1533;
->>>>>>> 61708e7 (Updated project files)
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
     --shadow: 0 8px 24px rgba(0, 0, 0, 0.26);
@@ -415,17 +303,10 @@ ul, ol {
 .content {
     flex: 1 1 auto;
     width: 100%;
-<<<<<<< HEAD
     max-width: calc(var(--content-max) + 2 * 2rem);
     margin-left: var(--sidebar-w);
     padding: 1.75rem 2rem 3rem;
     transition: margin-left 0.58s cubic-bezier(0.22, 0.61, 0.36, 1);
-=======
-    min-width: 0;
-    max-width: calc(var(--content-max) + 2 * 26px);
-    margin-left: var(--rail-w);
-    padding: calc(var(--topbar-h) + 22px) 26px 64px;
->>>>>>> 61708e7 (Updated project files)
 }
 
 .scrim {
@@ -451,11 +332,7 @@ ul, ol {
     display: flex;
     flex-direction: column;
     width: var(--sidebar-w);
-<<<<<<< HEAD
     transition: width 0.58s cubic-bezier(0.22, 0.61, 0.36, 1);
-=======
-    overflow: hidden;
->>>>>>> 61708e7 (Updated project files)
     background: var(--sidebar-bg);
     color: var(--sidebar-fg);
     border-right: 1px solid var(--sidebar-border);
@@ -572,15 +449,9 @@ ul, ol {
 }
 
 .nav__grouplabel {
-<<<<<<< HEAD
     margin: 0 0 0.4rem;
     padding: 0 0.55rem 0 2.9rem;
     font-size: 0.64rem;
-=======
-    margin: 0 0 7px;
-    padding: 0 10px;
-    font-size: 9.5px;
->>>>>>> 61708e7 (Updated project files)
     font-weight: 600;
     letter-spacing: 0.11em;
     color: var(--sidebar-dim);
@@ -780,12 +651,8 @@ ul, ol {
     position: fixed;
     top: 0;
     right: 0;
-<<<<<<< HEAD
     left: var(--sidebar-w);
     transition: left 0.34s ease-in-out;
-=======
-    left: var(--rail-w);
->>>>>>> 61708e7 (Updated project files)
     z-index: 50;
     display: flex;
     align-items: center;
@@ -3428,12 +3295,8 @@ th[aria-sort] .th__mark {
     position: fixed;
     right: 0;
     bottom: 0;
-<<<<<<< HEAD
     left: var(--sidebar-w);
     transition: left 0.34s ease-in-out;
-=======
-    left: var(--rail-w);
->>>>>>> 61708e7 (Updated project files)
     z-index: 40;
     display: flex;
     align-items: center;
@@ -3504,7 +3367,6 @@ th[aria-sort] .th__mark {
    22. Responsive
    ========================================================================== */
 
-<<<<<<< HEAD
 /* On desktop, the user controls whether the rail stays compact or expanded. */
 @media (min-width: 901px) {
     :root { --sidebar-w: var(--rail-w); }
@@ -3552,230 +3414,6 @@ th[aria-sort] .th__mark {
     .sidebar:not(.is-collapsed) .signedin { justify-content: flex-start; padding: 0.35rem 0.5rem 0.6rem; }
     .sidebar:not(.is-collapsed) .sidebar__logout { justify-content: flex-start; }
 
-=======
-/* Gmail-style rail: icons by default, labels on hover. The panel grows over
-   the content instead of shifting it, so the page does not jump as the
-   pointer moves in and out. */
-@media (min-width: 901px) {
-    .sidebar {
-        width: var(--rail-w);
-        box-shadow: none;
-    }
-
-    .sidebar:hover,
-    .sidebar:focus-within {
-        width: var(--sidebar-w);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .sidebar__brand {
-        justify-content: center;
-        padding: 0;
-        transition: padding 0.2s ease;
-    }
-
-    .sidebar:hover .sidebar__brand,
-    .sidebar:focus-within .sidebar__brand {
-        justify-content: flex-start;
-        padding: 0 18px;
-    }
-
-    .brand {
-        justify-content: center;
-        gap: 0;
-        transition: gap 0.2s ease;
-    }
-
-    .sidebar:hover .brand,
-    .sidebar:focus-within .brand {
-        justify-content: flex-start;
-        gap: 10px;
-    }
-
-    .brand__text {
-        max-width: 0;
-        overflow: hidden;
-        opacity: 0;
-        white-space: nowrap;
-        transition: max-width 0.2s ease, opacity 0.14s ease;
-    }
-
-    .sidebar:hover .brand__text,
-    .sidebar:focus-within .brand__text {
-        max-width: 160px;
-        opacity: 1;
-    }
-
-    .nav {
-        padding: 8px 10px 14px;
-    }
-
-    .nav__link {
-        justify-content: center;
-        gap: 0;
-        padding: 9px 0;
-        transition: background var(--transition), color var(--transition), gap 0.2s ease, padding 0.2s ease;
-    }
-
-    .sidebar:hover .nav__link,
-    .sidebar:focus-within .nav__link {
-        justify-content: flex-start;
-        gap: 10px;
-        padding: 7px 10px;
-    }
-
-    .nav__grouplabel {
-        max-height: 0;
-        margin: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-        overflow: hidden;
-        opacity: 0;
-        transition: max-height 0.2s ease, margin 0.2s ease, padding 0.2s ease, opacity 0.14s ease;
-    }
-
-    .sidebar:hover .nav__grouplabel,
-    .sidebar:focus-within .nav__grouplabel {
-        max-height: 20px;
-        margin: 0 0 7px;
-        padding-top: 0;
-        padding-bottom: 0;
-        opacity: 1;
-    }
-
-    .nav__group + .nav__group {
-        margin-top: 10px;
-        transition: margin 0.2s ease;
-    }
-
-    .sidebar:hover .nav__group + .nav__group,
-    .sidebar:focus-within .nav__group + .nav__group {
-        margin-top: 18px;
-    }
-
-    .nav__label,
-    .nav__lock {
-        max-width: 0;
-        overflow: hidden;
-        opacity: 0;
-        white-space: nowrap;
-        transition: max-width 0.2s ease, opacity 0.14s ease;
-    }
-
-    .sidebar:hover .nav__label,
-    .sidebar:focus-within .nav__label,
-    .sidebar:hover .nav__lock,
-    .sidebar:focus-within .nav__lock {
-        max-width: 150px;
-        opacity: 1;
-    }
-
-    .nav__count {
-        min-width: 0;
-        max-width: 0;
-        padding: 1px 0;
-        overflow: hidden;
-        opacity: 0;
-        transition: max-width 0.2s ease, padding 0.2s ease, opacity 0.14s ease;
-    }
-
-    .sidebar:hover .nav__count,
-    .sidebar:focus-within .nav__count {
-        min-width: 20px;
-        max-width: 48px;
-        padding: 1px 6px;
-        opacity: 1;
-    }
-
-    .sidebar__foot {
-        padding: 10px 10px 14px;
-        transition: padding 0.2s ease;
-    }
-
-    .sidebar:hover .sidebar__foot,
-    .sidebar:focus-within .sidebar__foot {
-        padding: 10px 12px 14px;
-    }
-
-    .sidebar__promo {
-        max-height: 0;
-        margin: 0;
-        padding: 0 14px;
-        border-width: 0;
-        overflow: hidden;
-        opacity: 0;
-        pointer-events: none;
-        transition: max-height 0.22s ease, margin 0.2s ease, padding 0.2s ease, border-width 0.2s ease, opacity 0.16s ease;
-    }
-
-    .sidebar:hover .sidebar__promo,
-    .sidebar:focus-within .sidebar__promo {
-        max-height: 220px;
-        margin-bottom: 12px;
-        padding: 14px;
-        border-width: 1px;
-        opacity: 1;
-        pointer-events: auto;
-    }
-
-    .signedin {
-        justify-content: center;
-        gap: 0;
-        padding: 4px 0 9px;
-        transition: gap 0.2s ease, padding 0.2s ease;
-    }
-
-    .sidebar:hover .signedin,
-    .sidebar:focus-within .signedin {
-        justify-content: flex-start;
-        gap: 9px;
-        padding: 4px 4px 9px;
-    }
-
-    .signedin__text {
-        max-width: 0;
-        overflow: hidden;
-        opacity: 0;
-        white-space: nowrap;
-        transition: max-width 0.2s ease, opacity 0.14s ease;
-    }
-
-    .sidebar:hover .signedin__text,
-    .sidebar:focus-within .signedin__text {
-        max-width: 150px;
-        opacity: 1;
-    }
-
-    .sidebar__logout {
-        justify-content: center;
-        transition: gap 0.2s ease, padding 0.2s ease;
-    }
-
-    .sidebar:hover .sidebar__logout,
-    .sidebar:focus-within .sidebar__logout {
-        justify-content: flex-start;
-    }
-
-    .sidebar__logout span {
-        max-width: 0;
-        overflow: hidden;
-        opacity: 0;
-        white-space: nowrap;
-        transition: max-width 0.2s ease, opacity 0.14s ease;
-    }
-
-    .sidebar:hover .sidebar__logout span,
-    .sidebar:focus-within .sidebar__logout span {
-        max-width: 120px;
-        opacity: 1;
-    }
-}
-
-@media (max-width: 1240px) {
-    .content { max-width: none; }
-    .topbar__search { width: min(320px, 30vw); }
-    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
->>>>>>> 61708e7 (Updated project files)
 }
 
 @media (max-width: 1100px) {
@@ -3804,12 +3442,8 @@ th[aria-sort] .th__mark {
     }
 
     .sidebar__close { display: flex; }
-<<<<<<< HEAD
     .sidebar__toggle { display: none; }
     .topbar__menu { display: flex; }
-=======
-    .topbar__menu { display: inline-flex; }
->>>>>>> 61708e7 (Updated project files)
     .topbar, .footer { left: 0; }
     .topbar { padding: 0 16px; gap: 10px; }
     .content { margin-left: 0; padding: calc(var(--topbar-h) + 16px) 16px 62px; }
