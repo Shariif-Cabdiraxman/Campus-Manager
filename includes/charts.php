@@ -102,13 +102,17 @@ function render_area_chart(array $rows, string $label = 'Monthly activity'): voi
     $first = $points[0];
     $last = $points[count($points) - 1];
     $area = $line . ' L ' . $last[0] . ' ' . $bottom . ' L ' . $first[0] . ' ' . $bottom . ' Z';
-    $tooltipX = min($right - 84, max($left, $last[0] - 42));
+    $tooltipText = number_format($last[2]) . ' · ' . $last[3];
+    // Keep the label comfortably readable, even when the final month is a
+    // long name, and keep the whole bubble inside the plotting area.
+    $tooltipWidth = max(84, (strlen($tooltipText) * 6.4) + 20);
+    $tooltipX = min($right - $tooltipWidth, max($left, $last[0] - ($tooltipWidth / 2)));
     $tooltipY = max(2, $last[1] - 33);
     ?>
     <div class="area-chart" role="img" aria-label="<?= e($label) ?>: <?php
         echo e(implode(', ', array_map(static fn(array $row): string => $row['month_label'] . ' ' . $row['n'], $rows)));
     ?>">
-        <svg viewBox="0 0 <?= e((string) $width) ?> 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <svg viewBox="0 0 <?= e((string) $width) ?> 220" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
             <defs>
                 <linearGradient id="activity-fill" x1="0" x2="0" y1="0" y2="1">
                     <stop offset="0%" stop-color="var(--mint-400)" stop-opacity=".34" />
@@ -126,11 +130,13 @@ function render_area_chart(array $rows, string $label = 'Monthly activity'): voi
             <?php endforeach; ?>
             <circle class="area-chart__focus" cx="<?= e((string) $last[0]) ?>" cy="<?= e((string) $last[1]) ?>" r="6" />
             <g class="area-chart__tooltip" transform="translate(<?= e((string) $tooltipX) ?> <?= e((string) $tooltipY) ?>)">
-                <rect width="84" height="25" rx="7" />
-                <text x="42" y="16" text-anchor="middle"><?= e(number_format($last[2])) ?> · <?= e($last[3]) ?></text>
+                <rect width="<?= e(number_format($tooltipWidth, 1, '.', '')) ?>" height="25" rx="7" />
+                <text x="<?= e(number_format($tooltipWidth / 2, 1, '.', '')) ?>" y="16" text-anchor="middle"><?= e($tooltipText) ?></text>
             </g>
-            <?php foreach ($points as $point): ?>
-                <text class="area-chart__axis" x="<?= e((string) $point[0]) ?>" y="205" text-anchor="middle"><?= e(substr($point[3], 0, 3)) ?></text>
+            <?php foreach ($points as $index => $point): ?>
+                <?php if ($count <= 7 || $index === 0 || $index === $count - 1 || $index % 2 === 0): ?>
+                    <text class="area-chart__axis" x="<?= e((string) $point[0]) ?>" y="205" text-anchor="middle"><?= e(substr($point[3], 0, 3)) ?></text>
+                <?php endif; ?>
             <?php endforeach; ?>
         </svg>
     </div>

@@ -5917,7 +5917,7 @@ body.app .promocard__link { color: var(--primary-fg); }
 .area-chart__line { fill: none; stroke: var(--mint-600); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .area-chart__point { fill: var(--surface); stroke: var(--mint-500); stroke-width: 2; }
 .area-chart__focus { fill: var(--surface); stroke: var(--primary); stroke-width: 3; }
-.area-chart__axis { fill: var(--text-3); font: 11px var(--font-sans); }
+.area-chart__axis { fill: var(--text-3); font: 12px var(--font-sans); }
 .area-chart__tooltip rect { fill: var(--text); }
 .area-chart__tooltip text { fill: var(--surface); font: 10px var(--font-sans); }
 
@@ -6297,4 +6297,30 @@ html[data-sidebar="peek"] { --sidebar-w: 72px; }
 }
 @media (prefers-reduced-motion: reduce) {
     .sidebar, .sidebar *, .topbar, .content, .footer { transition-duration: 0.01ms !important; }
+}
+
+/* Keep the dashboard workspace in one full-width vertical flow at every size. */
+.dashboard-shell .dash-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+}
+.dashboard-shell .dash-workspace__left,
+.dashboard-shell .dash-workspace__right {
+    width: 100%;
+    min-width: 0;
+}
+.dashboard-shell .dash-workspace__right {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+.dashboard-shell .dash-workspace__right > * { width: 100%; }
+
+/* Detail-page card groups use one full-width vertical column everywhere. */
+.split,
+.split--wide,
+.grid-2,
+.grid-3 {
+    grid-template-columns: minmax(0, 1fr);
 }
