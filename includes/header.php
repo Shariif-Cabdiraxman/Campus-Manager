@@ -14,11 +14,11 @@ declare(strict_types=1);
 function brand_mark(int $size = 28, string $class = ''): string
 {
     return '<svg class="brandmark' . ($class !== '' ? ' ' . e($class) : '') . '" width="' . $size . '" height="' . $size
-        . '" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5"'
+        . '" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"'
         . ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
-        . '<path d="M16 2.6 4.2 6.6v8.9c0 7.3 4.9 12.4 11.8 14 6.9-1.6 11.8-6.7 11.8-14V6.6L16 2.6Z"/>'
-        . '<path d="M16 10.6c-1.4-1.2-3.1-1.7-5.4-1.7H8.7v9.4h1.5c2.3 0 4 .5 5.4 1.6 1.4-1.1 3.1-1.6 5.4-1.6h1.5V8.9h-1.9c-2.3 0-4 .5-5.6 1.7Z"/>'
-        . '<path d="M16 10.6v9.3"/>'
+        . '<rect x="3" y="3" width="26" height="26" rx="7" stroke="currentColor" stroke-width="1.8"/>'
+        . '<path d="M10 21V11c0-1.1.9-2 2-2h4a4 4 0 0 1 4 4v0a4 4 0 0 1-4 4h-6"/>'
+        . '<path d="M16 17v4"/>'
         . '</svg>';
 }
 
@@ -55,11 +55,16 @@ function render_document_head(string $title, array $options = []): void
         <meta name="viewport" content="<?= e((string) ($options['viewport'] ?? 'width=device-width, initial-scale=1')) ?>">
         <meta name="description" content="<?= e($options['description'] ?? (APP_NAME . ' — ' . APP_TAGLINE)) ?>">
         <meta name="color-scheme" content="light dark">
-        <meta name="theme-color" content="#12283d">
+        <meta name="theme-color" content="#073D32">
         <title><?= e($fullTitle) ?></title>
 
+        <script src="<?= e(url('assets/js/sidebar-state.js?v=20261101-v1')) ?>"></script>
+
         <link rel="icon" href="<?= e(url('assets/img/favicon.svg')) ?>" type="image/svg+xml">
-        <link rel="stylesheet" href="<?= e(url('assets/css/style.css?v=20261029-navy-bronze')) ?>">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="<?= e(url('assets/css/style.css?v=20261101-sidebar-v2')) ?>">
         <?php foreach ((array) ($options['styles'] ?? []) as $style): ?>
             <link rel="stylesheet" href="<?= e(url((string) $style)) ?>">
         <?php endforeach; ?>
@@ -96,11 +101,14 @@ function render_standalone_head(string $title, array $options = []): void
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="color-scheme" content="light dark">
-        <meta name="theme-color" content="#12283d">
+        <meta name="theme-color" content="#073D32">
         <meta name="robots" content="noindex">
         <title><?= e($fullTitle) ?></title>
         <link rel="icon" href="<?= e(url('assets/img/favicon.svg')) ?>" type="image/svg+xml">
-        <link rel="stylesheet" href="<?= e(url('assets/css/style.css?v=20261029-navy-bronze')) ?>">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="<?= e(url('assets/css/style.css?v=20261101-sidebar-v2')) ?>">
         <?php if (!empty($options['meta'])): ?>
             <meta name="description" content="<?= e((string) $options['meta']) ?>">
         <?php endif; ?>
@@ -120,7 +128,7 @@ function render_document_foot(array $options = []): void
     // app.js always loads; anything extra follows it.
     $scripts = $options['scripts'] ?? [];
     ?>
-    <script src="<?= e(url('assets/js/app.js?v=20261029-sidebar-manual')) ?>" defer></script>
+    <script src="<?= e(url('assets/js/app.js?v=20261101-sidebar-v1')) ?>" defer></script>
     <?php foreach ($scripts as $script): ?>
         <script src="<?= e(url((string) $script)) ?>" defer></script>
     <?php endforeach; ?>
@@ -128,3 +136,6 @@ function render_document_foot(array $options = []): void
     </html>
     <?php
 }
+
+
+

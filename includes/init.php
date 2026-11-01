@@ -39,10 +39,10 @@ if (!headers_sent()) {
         "base-uri 'self'",
         "form-action 'self'",
         "frame-ancestors 'none'",
-        "img-src 'self' data:",
-        "font-src 'self'",
-        // Style attributes are used for chart bar heights and the like.
-        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: https:",
+        "font-src 'self' https://fonts.gstatic.com data:",
+        // Style attributes are used for chart bar heights and Google fonts.
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "script-src 'self'",
     ]));
 }

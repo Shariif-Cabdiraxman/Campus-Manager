@@ -120,7 +120,7 @@ function render_sidebar(string $active = ''): void
     $user   = current_user();
     ?>
     <div class="shell">
-        <aside class="sidebar is-collapsed" id="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar__brand">
                 <a class="brand" href="<?= e(url('dashboard.php')) ?>">
                     <span class="brand__mark"><?= brand_mark(30) ?></span>
@@ -131,12 +131,6 @@ function render_sidebar(string $active = ''): void
                 </a>
                 <button class="sidebar__close" type="button" data-sidebar-close aria-label="Close navigation">
                     <?= icon('x', 18) ?>
-                </button>
-                <button class="sidebar__toggle" type="button" data-sidebar-toggle
-                        aria-label="Expand sidebar" aria-expanded="false" aria-controls="sidebar-navigation"
-                        title="Expand sidebar">
-                    <span class="sidebar__toggle-expand"><?= icon('chevron-right', 17) ?></span>
-                    <span class="sidebar__toggle-collapse"><?= icon('chevron-left', 17) ?></span>
                 </button>
             </div>
 
@@ -154,6 +148,7 @@ function render_sidebar(string $active = ''): void
                                 <li>
                                     <a class="nav__link<?= $isActive ? ' is-active' : '' ?>"
                                        href="<?= e(url($item['href'])) ?>"
+                                       aria-label="<?= e($item['label']) ?>" data-tooltip="<?= e($item['label']) ?>" title="<?= e($item['label']) ?>"
                                        <?= $isActive ? 'aria-current="page"' : '' ?>>
                                         <span class="nav__icon"><?= icon($item['icon'], 17) ?></span>
                                         <span class="nav__label"><?= e($item['label']) ?></span>
@@ -171,6 +166,20 @@ function render_sidebar(string $active = ''): void
                 <?php endforeach; ?>
             </nav>
 
+            <div class="sidebar__promo">
+                <div class="promocard">
+                    <div class="promocard__icon"><?= icon('credit-card', 20) ?></div>
+                    <div class="promocard__content">
+                        <p class="promocard__title">Campus Manager</p>
+                        <p class="promocard__sub">Verified academic ledger</p>
+                        <a class="promocard__link" href="<?= e(url('students/index.php')) ?>">
+                            <span>Open Records</span>
+                            <?= icon('arrow-right', 13) ?>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div class="sidebar__foot">
                 <div class="signedin">
                     <?= render_avatar(
@@ -182,7 +191,7 @@ function render_sidebar(string $active = ''): void
                         <p class="signedin__role"><?= e(humanize($user['role'] ?? '')) ?></p>
                     </div>
                 </div>
-                <a class="sidebar__logout" href="<?= e(url('auth/logout.php')) ?>">
+                <a class="sidebar__logout" href="<?= e(url('auth/logout.php')) ?>" aria-label="Sign out" data-tooltip="Sign out" title="Sign out">
                     <?= icon('logout', 15) ?><span>Sign out</span>
                 </a>
             </div>
@@ -191,3 +200,4 @@ function render_sidebar(string $active = ''): void
         <div class="scrim" data-sidebar-close hidden></div>
     <?php
 }
+
