@@ -81,7 +81,7 @@ Assert-Status200 $r 'dashboard with a 390px viewport reported'
 Check (Is-MobileShell $r) 'a phone-width viewport is given the mobile shell'
 Assert-Clean $r 'dashboard renders without diagnostics'
 foreach ($needle in $shellNeedles) { Assert-Has $r $needle "dashboard has $needle" }
-Assert-Lacks $r 'class="sidebar"' 'dashboard has no navigation rail'
+Check ($r.Html -notmatch 'class="[^"]*\bsidebar\b') 'dashboard has no navigation rail'
 Assert-Has $r 'id="mcontent"' 'dashboard main region is the phone one'
 
 Write-Host "== Screens in the phone shell =="
@@ -167,7 +167,7 @@ Write-Host "== Switching shell =="
 # that following a link does not bounce the reader back to the phone shell.
 $r = Http-Get '/dashboard.php?view=desktop'
 Check (-not (Is-MobileShell $r)) '?view=desktop gives the desktop shell'
-Assert-Has $r 'class="sidebar"' 'the desktop shell has its navigation rail'
+Check ($r.Html -match 'class="[^"]*\bsidebar\b') 'the desktop shell has its navigation rail'
 Assert-Lacks $r 'assets/css/mobile.css' 'the desktop shell does not load the phone stylesheet'
 
 $r = Http-Get '/courses/index.php'
