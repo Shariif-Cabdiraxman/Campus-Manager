@@ -1,360 +1,97 @@
-# Hagmah Campus Manager (HCM)
+# HAGMAH Campus Manager
 
-[![PHP Version](https://img.shields.io/badge/PHP-8.0%2B-777BB4?logo=php&logoColor=white)](https://php.net)
-[![Database](https://img.shields.io/badge/Database-MySQL%20%7C%20MariaDB-4479A1?logo=mysql&logoColor=white)](https://mariadb.org)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-218%20passing-brightgreen)](tools/)
-[![Architecture](https://img.shields.io/badge/Architecture-Modular%20MVC-blueviolet)](#architecture)
-[![Mobile](https://img.shields.io/badge/Mobile-Responsive%20%2B%20PWA-orange)](#on-a-phone)
-[![Security](https://img.shields.io/badge/Security-Hardened-red)](#security)
+**The registrar’s workspace for Hagmah University.** Keep students, courses, enrolments, grades, and campus announcements together in one straightforward app.
 
----
+[![CI](https://github.com/Shariif-Cabdiraxman/Campus-Manager/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Shariif-Cabdiraxman/Campus-Manager/actions/workflows/ci.yml)
+[![PHP](https://img.shields.io/badge/PHP-8.0%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![MySQL / MariaDB](https://img.shields.io/badge/MySQL%20%2F%20MariaDB-supported-4479A1?logo=mysql&logoColor=white)](https://mariadb.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-3A806D.svg)](LICENSE)
 
-A **student records system for a small university**, written in **plain PHP** with **no framework** and **no build step**.
+## A clearer way to manage academic records
 
-It covers the academic structure of the institution (faculties, departments, staff, courses), the people in it (lecturers and students), and what they do (enrolments, grades, announcements) behind a **role-based sign-in**.
+HAGMAH Campus Manager is a lightweight registrar and university management system built with PHP and MySQL. It brings everyday academic administration into one place, with a responsive interface for desktop and mobile.
 
-> **Nine modules** — each with a searchable, sortable, paginated list, a create/edit form, a detail page, and a **guarded delete**. Foreign keys are enforced in the database, and a delete that would orphan records is refused with a sentence naming what is in the way rather than a cryptic constraint-violation error.
+| | |
+|---|---|
+| **Academic records** | Students, lecturers, faculties, departments, and courses |
+| **Registrar workflows** | Enrolments, grades, and announcements |
+| **Access control** | Separate administrator and registrar permissions |
+| **On any screen** | Responsive layouts, mobile navigation, and installable PWA support |
+| **Simple to run** | No framework, Composer, npm, or build step |
 
----
+## Try it locally with XAMPP
 
-## Quick Start
+### 1. Start the services
 
-```bash
-# 1. Clone
-git clone https://github.com/Shariif-Cabdiraxman/UMS.git
-cd UMS
+Open the XAMPP Control Panel and start **Apache** and **MySQL**.
 
-# 2. Import schema + seed data
-mysql -u root < database.sql
+### 2. Get the project
 
-# 3. Configure (copy template, edit credentials)
-cp config/database.example.php config/database.php
+Clone or download this repository into your XAMPP `htdocs` folder. With Git installed, for example:
 
-# 4. Open in browser
-# http://localhost/UMS/
-```
-
-**Demo accounts** (printed on the login page when `APP_DEMO_MODE=1`):
-
-| Username | Password | Role | Access |
-|----------|----------|------|--------|
-| `admin` | `Admin@123` | admin | All modules |
-| `registrar` | `Registrar@123` | registrar | Students, courses, enrolments, grades, announcements |
-| `admissions` | `Registrar@123` | registrar | Same as registrar |
-
----
-
-## Features at a Glance
-
-| Capability | Details |
-|------------|---------|
-| **Academic Structure** | Faculties → Departments → Courses → Lecturers |
-| **People Management** | Students (department-scoped), Lecturers, Users |
-| **Academic Operations** | Enrolments (term/year), Grades (auto-computed letters), Announcements |
-| **Role-Based Access** | `admin` (full) / `registrar` (academic ops only) |
-| **Data Integrity** | FK enforcement, guarded deletes with human-readable errors |
-| **Mobile-First** | Responsive desktop + dedicated phone shell + PWA installable |
-| **Zero-Dependency** | No Composer, no npm, no build — just PHP + MySQL |
-| **Tested** | 218 automated smoke checks (86 desktop + 132 mobile) |
-
----
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      Browser                                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │  Desktop    │  │   Mobile    │  │  PWA (sw.js)        │  │
-│  │  Shell      │  │  Shell      │  │  Offline page only  │  │
-│  └──────┬──────┘  └──────┬──────┘  └──────────┬──────────┘  │
-└─────────┼────────────────┼────────────────────┼─────────────┘
-          │                │                    │
-          ▼                ▼                    ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    index.php (Front Controller)              │
-│  → auth/login.php  → dashboard.php  → module/*/index.php    │
-└─────────────────────────────────────────────────────────────┘
-          │
-          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    includes/ (Shared Layer)                  │
-│  init.php  db.php  auth.php  validation.php  list_query.php  │
-│  crud.php  helpers.php  charts.php  mobile.php  layout.php   │
-└─────────────────────────────────────────────────────────────┘
-          │
-          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    MySQL / MariaDB                           │
-│  university_management  •  9 tables  •  FK constraints       │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Module Convention** — every module has the same three files:
-- `index.php` — permission check, search/filter/sort, one prepared query, shared renderers
-- `form.php` — `validate()` against rule map → insert/update with bound types
-- `view.php` — one row + related lists via `render_deflist()` / `render_related_list()`
-
-> That's why nine modules are nearly the same file three times, and a new module is mostly a matter of copying `faculties/`.
-
----
-
-## Requirements
-
-| Component | Version |
-|-----------|---------|
-| **PHP** | 8.0+ with `mysqli` extension |
-| **Database** | MySQL 8.x or MariaDB 10.4+ |
-| **Web Server** | Apache (mod_rewrite not required), Nginx, or any PHP-capable server |
-
-Developed and tested on **XAMPP** (PHP 8.0.30, MariaDB, Apache on port 80).
-
----
-
-## Installation
-
-### 1. Get the Files
-```bash
-git clone https://github.com/Shariif-Cabdiraxman/UMS.git
-```
-
-Place under your web root (e.g., `htdocs/UMS` or `/var/www/html/UMS`).
-
-### 2. Create Database & Import Schema
-```bash
-mysql -u root < database.sql
-```
-This creates:
-- `university_management` database
-- 9 tables with foreign keys
-- Full demonstration data (see [Seed Data](#seed-data))
-
-> Or use phpMyAdmin: **Import** → choose `database.sql`
-
-### 3. Configure Credentials
-```bash
-cp config/database.example.php config/database.php
-```
-Edit `config/database.php` with your credentials. All values support environment variables for production:
-```php
-define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
-define('DB_PORT', (int) (getenv('DB_PORT') ?: 3306));
-define('DB_NAME', getenv('DB_NAME') ?: 'university_management');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
-```
-
-### 4. Open in Browser
-Navigate to `http://localhost/UMS/` and sign in with a demo account.
-
----
-
-## Seed Data
-
-A fresh import contains enough data to exercise every screen, including the delete guards:
-
-| Faculties | Departments | Lecturers | Courses | Students | Enrolments | Grades | Announcements | Users |
-|-----------|-------------|-----------|---------|----------|------------|--------|---------------|-------|
-| 5 | 12 | 19 | 37 | 400 | 644 | 1,076 | 7 | 3 |
-
----
-
-## Demo Accounts & Roles
-
-### Accounts (seeded by `database.sql`)
-> ⚠️ Change passwords or drop users before any real deployment!
-
-| Username | Password | Role | Sees |
-|----------|----------|------|------|
-| `admin` | `Admin@123` | admin | Every module |
-| `registrar` | `Registrar@123` | registrar | Students, courses, enrolments, grades, announcements |
-| `admissions` | `Registrar@123` | registrar | Same as registrar |
-
-### Permission Matrix
-
-| Permission | admin | registrar |
-|------------|:-----:|:---------:|
-| `faculties.manage` | ✅ | — |
-| `departments.manage` | ✅ | — |
-| `lecturers.manage` | ✅ | — |
-| `users.manage` | ✅ | — |
-| `students.manage` | ✅ | ✅ |
-| `courses.manage` | ✅ | ✅ |
-| `enrollments.manage` | ✅ | ✅ |
-| `grades.manage` | ✅ | ✅ |
-| `announcements.manage` | ✅ | ✅ |
-
-Permissions are checked server-side in `require_permission()` at the top of every write endpoint — editing the URL or posting directly cannot bypass the interface.
-
-### Debug / Demo Mode
 ```powershell
-# Disable demo hint block on login page
-setx APP_DEMO_MODE 0    # restart Apache
-
-# Enable debug exceptions (local only!)
-setx APP_DEBUG 1        # restart Apache
+cd C:\xampp\htdocs
+git clone https://github.com/Shariif-Cabdiraxman/Campus-Manager.git
 ```
-Or create empty files (gitignored):
-- `config/demo.off.local.php` — disables demo mode
-- `config/debug.local.php` — enables debug mode
 
----
+### 3. Import the sample database
 
-## Modules
+Open [phpMyAdmin](http://localhost/phpmyadmin), choose **Import**, select `database.sql` from the project folder, and run the import. It creates the `university_management` database and sample records.
 
-| Module | Purpose | Notable Business Rules |
-|--------|---------|------------------------|
-| **Faculties** | Top-level academic units | — |
-| **Departments** | Academic departments | Head must be a lecturer in the owning faculty |
-| **Lecturers** | Teaching staff | Delete blocked while students registered to lecturer |
-| **Courses** | Offered courses | Delete blocked while students enrolled |
-| **Students** | Students (per department) | Student number: unique, upper-cased, format-checked; public ID in URLs |
-| **Enrollments** | Student ↔ Course in term/year | Rejected if course dept ≠ student dept |
-| **Grades** | Marks per assessment | Letter grade computed server-side from mark (never typed) |
-| **Announcements** | Notices (draft/published) | `published_at` stamped on first publish |
-| **Users** | Sign-in accounts | bcrypt passwords; 5 failures → 15-min cool-down |
+### 4. Set database credentials
 
-> Example: a grade of `87.5` is recorded as `B`. The letter is always derived from the mark, so a stored letter can never disagree with its mark.
+Copy `config/database.example.php` to `config/database.php`. The example uses the standard local XAMPP settings (`127.0.0.1`, port `3306`, user `root`, and an empty password). Change them in `database.php` if your MySQL setup differs. The real config file is ignored by Git so local credentials stay out of commits.
 
----
+### 5. Open the app
 
-## On a Phone
+Visit [http://localhost/Campus-Manager/](http://localhost/Campus-Manager/) and sign in with a sample account:
 
-The **same application, drawn for a thumb**. No second set of screens, no second set of queries. `includes/mobile.php` decides from the request which shell to draw; the page above it is the same code path. A record saved on a phone is the record the desktop shows.
+| Role | Username | Password |
+|---|---|---|
+| Administrator | `admin` | `Admin@123` |
+| Registrar | `registrar` | `Registrar@123` |
 
-| Aspect | Phone | Desktop |
-|--------|-------|---------|
-| **Navigation** | 4-item bottom bar + full module index at `/m/` | Persistent rail, collapses to menu < 900px |
-| **Lists** | Search full-width, filters behind fold, prev/next pager | Search, filters, page size in one row |
-| **Tables** | Each row → labelled card (heading copied per cell) | Real `<table>` |
-| **Forms** | 1 column, 16px controls (no iOS zoom), pinned save bar | Multi-column grid |
-| **Touch Targets** | ≥ 44px | Pointer-sized |
-| **Notches** | `viewport-fit=cover`, `env(safe-area-inset-*)` on bars | — |
+These accounts are for local demonstration only. Change or remove them, disable demo mode, and configure secure credentials before any real deployment. Demo hints can be disabled by creating an empty `config/demo.off.local.php` file.
 
-### Shell Detection
-- **Preferred**: measured viewport width (via `assets/js/mobile.js` → 1-day cookie)
-- **Fallback**: user agent (tablet = desktop)
-- **Manual override**: `?view=mobile` or `?view=desktop` (remembered in session)
+## What you can manage
 
-### Installable PWA
-- `manifest.webmanifest` + `sw.js` make it installable
-- Service worker **precaches only static assets** (CSS, JS, icons)
-- **Never caches HTML** — every screen is behind a session; caching a page would leak records
-- Offline navigations show a small offline page
+- **University structure:** faculties and departments
+- **People:** students, lecturers, and staff accounts
+- **Teaching:** courses and student enrolments
+- **Assessment:** marks and grades
+- **Communication:** campus announcements
+- **Dashboard:** at-a-glance academic totals and shortcuts
 
-> Try it on desktop: resize window narrow + reload, or open `?view=mobile`
+Student records, course data, and grades are stored in a relational database with foreign-key checks. Access to administrative actions is enforced on the server according to each account’s role.
 
----
+## Built for desktop and mobile
 
-## Tests
+Use the full registrar workspace on desktop, or switch to the mobile layout on a phone. The app includes a collapsible desktop sidebar, touch-friendly mobile navigation, and installable PWA support. The service worker caches static assets; signed-in pages and academic records are not cached for offline access.
 
-### Desktop Smoke Suite (86 checks)
+## Technology
+
+- PHP 8.0+ with `mysqli`
+- MySQL 8 or MariaDB 10.4+
+- Apache through XAMPP, or another PHP-capable web server
+- Plain PHP, CSS, and JavaScript—no frontend build required
+
+## Checks
+
+GitHub Actions runs PHP syntax and repository checks, a security scan, and the desktop and mobile smoke suites. To run the smoke suites locally, make sure the app is configured and the web server and database are running, then use PowerShell:
+
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\smoke_modules.ps1
-```
-Signs in, visits every list page, follows dashboard deep links, does create+delete round-trip per module with validation paths (duplicate keys, mismatched departments, cross-faculty heads, password mismatches).
-
-**Current: 86 checks, 0 failures.**
-
-### Mobile Smoke Suite (132 checks)
-```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\smoke_mobile.ps1
 ```
-Verifies phone-width requests get mobile shell, desktop requests don't, every screen type carries phone furniture, create+delete works through phone shell, shell-switching sticks.
-
-**Current: 132 checks, 0 failures.**
-
-Both suites create and remove their own rows — a green run leaves the database exactly as it found it. They exit non-zero on failure, so they work as CI steps.
-
-### Manual Probe
-```powershell
-. tools\smoke.ps1
-Login 'admin' 'Admin@123'
-$r = Http-Get '/grades/index.php'
-$r.Status                      # 200
-Diagnostics $r.Html            # $null = no PHP diagnostics leaked
-```
-
-### Syntax Check
-```bash
-find . -name '*.php' -exec php -l {} \;
-```
-
----
-
-## Project Structure
-
-```
-UMS/
-├── index.php                 # Front controller → redirects to sign-in
-├── auth/                     # login.php, logout.php
-├── dashboard.php             # Landing page with deep links per module
-├── database.sql              # Schema, constraints, seed data
-├── manifest.webmanifest      # PWA manifest (phone build)
-├── sw.js                     # Service worker (static assets only)
-├── assets/                   # 1 stylesheet, 3 scripts, no build step
-├── config/                   # app.php + gitignored database.php
-├── includes/                 # Shared layer
-│   ├── init.php              # Bootstrap, error handling, output buffering
-│   ├── db.php                # mysqli wrapper, exceptions, safe identifiers
-│   ├── auth.php              # Roles, permissions, login throttling
-│   ├── validation.php        # Field validation rules
-│   ├── list_query.php        # List rendering, filters, sort, pagination
-│   ├── crud.php              # Write guards, guarded delete
-│   ├── helpers.php           # Escaping, redirects, flashes
-│   ├── charts.php            # Dashboard counters & bar charts
-│   ├── error_page.php        # 403 / 404 / 500 page
-│   ├── flash.php             # One-shot messages
-│   ├── icons.php             # Inline SVG sprite
-│   ├── mobile.php            # Shell detection + phone chrome
-│   └── layout.php            # header, footer, navbar, sidebar, layout
-├── m/                        # Phone module index (desktop sent onward)
-├── faculties/  departments/  lecturers/  courses/
-├── students/   enrollments/  grades/  announcements/  users/
-└── tools/                    # smoke.ps1, smoke_modules.ps1, smoke_mobile.ps1
-```
-
----
-
-## Security
-
-- **Passwords**: bcrypt via `password_hash()`; column never read back
-- **Authorization**: every write behind `require_permission()`, server-side
-- **XSS Prevention**: all output through `e()`; `safe_identifier()` guards SQL interpolation
-- **SQL Injection**: every statement prepared + parameter-bound
-- **CSRF**: state-changing forms carry a token
-- **CSP**: `Content-Security-Policy` set — no inline handlers (filters use `data-auto-submit`)
-- **Brute-Force Protection**: 5 failed logins → 15-minute cool-down
-- **Timing Attack Resistance**: unknown usernames still run `password_verify()` against dummy hash
-
----
 
 ## Contributing
 
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/amazing-thing`)
-3. Run syntax check: `find . -name '*.php' -exec php -l {} \;`
-3. Run smoke tests: `powershell -File tools\smoke_modules.ps1`
-4. Submit a PR with a clear description
-
----
+Found a problem or have an idea? Open an issue with what you expected and what happened. Pull requests are welcome—please describe the change and include the checks you ran.
 
 ## License
 
-**MIT License** — see [LICENSE](LICENSE)
-
-Copyright (c) 2026 Shariif Abdi
+Released under the [MIT License](LICENSE).
 
 ---
 
-## About the Author
-
-**Shariif Abdi** — [@Shariif-Cabdiraxman](https://github.com/Shariif-Cabdiraxman)
-
-*Built for Hagmah University. If you find this useful, ⭐ the repo!*
-
----
-
-> **Related Repos**  
-> - [Teacher Digital Gradebook](https://github.com/Shariif-Cabdiraxman/gradebook) — Offline-first, sync-enabled gradebook (TypeScript/React/Tauri/React Native)
+Made for Hagmah University · [@Shariif-Cabdiraxman](https://github.com/Shariif-Cabdiraxman)
