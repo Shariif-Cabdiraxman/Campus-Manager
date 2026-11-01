@@ -113,32 +113,16 @@ foreach ($facultyRows as $row) {
 
 $maxFaculty = $facultyChart === [] ? 1 : max(array_column($facultyChart, 'value'));
 
-// ---------------------------------------------------------------------
-// Enrollments by faculty, for the running term
-// ---------------------------------------------------------------------
-
-$termRows = db_all(
-    'SELECT f.`name`, COUNT(e.`id`) AS `n`
-       FROM `enrollments` e
-       JOIN `courses` c     ON c.`id` = e.`course_id`
-       JOIN `departments` d ON d.`id` = c.`department_id`
-       JOIN `faculties` f   ON f.`id` = d.`faculty_id`
-      WHERE e.`academic_year` = ? AND e.`semester` = ?
-      GROUP BY f.`id`, f.`name`
-      ORDER BY `n` DESC',
-    'ss',
-    [$year, $semester]
+// Recent enrollment activity, grouped by month using real enrollment dates.
+$monthlyEnrollments = db_all(
+    'SELECT DATE_FORMAT(`enrollment_date`, "%Y-%m") AS `month_key`,
+            DATE_FORMAT(`enrollment_date`, "%b %Y") AS `month_label`,
+            COUNT(*) AS `n`
+       FROM `enrollments`
+      WHERE `enrollment_date` >= DATE_SUB(CURDATE(), INTERVAL 7 MONTH)
+      GROUP BY `month_key`, `month_label`
+      ORDER BY `month_key` ASC'
 );
-
-$termChart = [];
-foreach ($termRows as $row) {
-    $termChart[] = [
-        'label' => $row['name'],
-        'value' => (int) $row['n'],
-        'note'  => null,
-    ];
-}
-
 // ---------------------------------------------------------------------
 // Enrollment trend by academic year
 // ---------------------------------------------------------------------
@@ -243,86 +227,170 @@ $recentStudents = db_all(
 
 $hour = (int) date('G');
 $greeting = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good evening');
+$activeStudentShare = $totals['students'] > 0
+    ? min(100, round(($totals['students_active'] / $totals['students']) * 100, 1))
+    : 0;
 
 layout_start('Dashboard', 'dashboard');
 ?>
 
-<?php render_page_head([
-    'eyebrow' => 'Overview',
-    'title'   => $greeting . ', ' . explode(' ', $user['full_name'])[0],
-    'subtitle' => 'Here is where the university record stands today.',
-    'meta'    => e(date('l, j F Y')) . ' &middot; ' . e($year) . ' &middot; ' . e($semester),
-    'actions' => '<a class="btn btn--quiet" href="' . e(url('announcements/form.php')) . '">' . icon('plus', 15) . '<span>New notice</span></a>'
-        . '<a class="btn btn--primary" href="' . e(url('students/index.php')) . '">' . icon('student', 15) . '<span>Student records</span></a>',
-]); ?>
+<div class="dashboard-shell">
 
-<section class="stats" aria-label="Headline figures">
-    <article class="stat">
-        <div class="stat__top">
-            <span class="stat__icon"><?= icon('student', 17) ?></span>
-            <p class="stat__label">Students</p>
+    <!-- Top Greeting Section in Fintech Editorial Style -->
+    <section class="dash-greeting">
+        <div class="dash-greeting__main">
+            <h1 class="dash-greeting__title pagehead__title"><?= e($greeting) ?>, <?= e(explode(' ', $user['full_name'])[0]) ?> 👋</h1>
+            <p class="dash-greeting__sub"><?= e($year) ?> &middot; <?= e($semester) ?> &middot; Registrar Overview</p>
         </div>
-        <p class="stat__value"><?= e(format_number($totals['students'])) ?></p>
-        <p class="stat__foot">
-            <span class="stat__delta stat__delta--up"><?= icon('trending', 11) ?><?= e(format_number($totals['students_active'])) ?> active</span>
-            <span>of <?= e(format_number($totals['students'])) ?> on the register</span>
-        </p>
-    </article>
-
-    <article class="stat">
-        <div class="stat__top">
-            <span class="stat__icon stat__icon--blue"><?= icon('enrollment', 17) ?></span>
-            <p class="stat__label">Enrollments this term</p>
+        <div class="dash-greeting__badge">
+            <span class="status-pill status-pill--ok">
+                <span class="status-pill__icon"><?= icon('check-circle', 16) ?></span>
+                <span class="status-pill__text">
+                    <strong>Academic Session Online</strong>
+                    <small><?= e($year) ?> &middot; <?= e($semester) ?></small>
+                </span>
+            </span>
         </div>
-        <p class="stat__value"><?= e(format_number($termEnrollments)) ?></p>
-        <p class="stat__foot">
-            <span><?= e($semester) ?></span>
-            <span>&middot;</span>
-            <span><?= e(format_number($totals['enrollments'])) ?> recorded in total</span>
-        </p>
-    </article>
+    </section>
 
-    <article class="stat">
-        <div class="stat__top">
-            <span class="stat__icon stat__icon--violet"><?= icon('course', 17) ?></span>
-            <p class="stat__label">Courses</p>
-        </div>
-        <p class="stat__value"><?= e(format_number($totals['courses'])) ?></p>
-        <p class="stat__foot">
-            <span><?= e((string) $semesterCounts['Semester 1']) ?> in Semester 1</span>
-            <span>&middot;</span>
-            <span><?= e((string) $semesterCounts['Semester 2']) ?> in Semester 2</span>
-        </p>
-    </article>
-
-    <article class="stat">
-        <div class="stat__top">
-            <span class="stat__icon stat__icon--peach"><?= icon('grades', 17) ?></span>
-            <p class="stat__label">Average mark</p>
-        </div>
-        <p class="stat__value"><?= e(number_format($gradeAverage, 1)) ?><small> / 100</small></p>
-        <p class="stat__foot">
-            <span class="stat__delta stat__delta--up"><?= e(number_format($passRate, 1)) ?>% pass rate</span>
-            <span><?= e(format_number($gradeTotal)) ?> marks recorded</span>
-        </p>
-    </article>
-</section>
-
-<div class="dash-main">
-    <section class="panel">
-        <div class="panel__head">
-            <div class="panel__titles">
-                <h2 class="panel__title">Enrollment activity</h2>
-                <p class="panel__sub">Registrations recorded across every academic year</p>
+    <!-- Institution KPIs -->
+    <section class="metrics-grid" aria-label="Institutional statistics">
+        <article class="metric-card metric-card--students">
+            <div class="metric-card__summary">
+                <div class="metric-card__header">
+                    <span class="metric-card__tag">TOTAL STUDENTS</span>
+                    <span class="metric-card__icon"><?= icon('student', 17) ?></span>
+                </div>
+                <p class="metric-card__value"><?= e(format_number($totals['students'])) ?></p>
+                <p class="metric-card__foot"><?= e(format_number($totals['students_active'])) ?> active students</p>
             </div>
-            <div class="segmented" aria-hidden="true">
-                <span class="segmented__item is-active">By year</span>
-                <span class="segmented__item">All terms</span>
+            <span class="metric-card__ring" style="--ring-value: <?= e((string) $activeStudentShare) ?>%"
+                  role="img" aria-label="<?= e((string) $activeStudentShare) ?> percent of students are active">
+                <span><?= e((string) round($activeStudentShare)) ?>%</span>
+            </span>
+        </article>
+        <article class="metric-card">
+            <div class="metric-card__header">
+                <span class="metric-card__tag">FACULTIES</span>
+                <span class="metric-card__icon"><?= icon('faculty', 16) ?></span>
             </div>
-        </div>
-        <div class="panel__body">
-            <div class="dash-chart-head">
-                <div>
+            <p class="metric-card__value"><?= e((string) $totals['faculties']) ?></p>
+            <p class="metric-card__foot">Academic faculties</p>
+        </article>
+
+        <article class="metric-card">
+            <div class="metric-card__header">
+                <span class="metric-card__tag">DEPARTMENTS</span>
+                <span class="metric-card__icon"><?= icon('department', 16) ?></span>
+            </div>
+            <p class="metric-card__value"><?= e((string) $totals['departments']) ?></p>
+            <p class="metric-card__foot">Degree & diploma programs</p>
+        </article>
+
+        <article class="metric-card">
+            <div class="metric-card__header">
+                <span class="metric-card__tag">COURSES</span>
+                <span class="metric-card__icon"><?= icon('course', 16) ?></span>
+            </div>
+            <p class="metric-card__value"><?= e(format_number($totals['courses'])) ?></p>
+            <p class="metric-card__foot"><?= e((string) $semesterCounts['Semester 1']) ?> Sem 1 &middot; <?= e((string) $semesterCounts['Semester 2']) ?> Sem 2</p>
+        </article>
+
+        <article class="metric-card">
+            <div class="metric-card__header">
+                <span class="metric-card__tag">ENROLLMENTS</span>
+                <span class="metric-card__icon"><?= icon('enrollment', 16) ?></span>
+            </div>
+            <p class="metric-card__value"><?= e(format_number($termEnrollments)) ?></p>
+            <p class="metric-card__foot">Recorded for <?= e($semester) ?></p>
+        </article>
+    </section>
+
+    <!-- 4 Pastel Quick Action Cards Grid (Direct Match of Reference Image) -->
+    <section class="quick-cards-grid" aria-label="Campus Quick Access">
+        <a class="quick-card quick-card--sage" href="<?= e(url('students/index.php')) ?>">
+            <div class="quick-card__icon-wrap">
+                <?= icon('student', 18) ?>
+            </div>
+            <h3 class="quick-card__title">Student Records</h3>
+            <p class="quick-card__desc">Review enrollment files, contact directories, and active status.</p>
+            <span class="quick-card__link">
+                <span>View Directory</span>
+                <?= icon('arrow-right', 13) ?>
+            </span>
+        </a>
+
+        <a class="quick-card quick-card--sky" href="<?= e(url('courses/index.php')) ?>">
+            <div class="quick-card__icon-wrap">
+                <?= icon('course', 18) ?>
+            </div>
+            <h3 class="quick-card__title">Course Catalog</h3>
+            <p class="quick-card__desc">Browse credit allocations, syllabus mappings, and lectures.</p>
+            <span class="quick-card__link">
+                <span>Browse Courses</span>
+                <?= icon('arrow-right', 13) ?>
+            </span>
+        </a>
+
+        <a class="quick-card quick-card--lavender" href="<?= e(url('grades/index.php')) ?>">
+            <div class="quick-card__icon-wrap">
+                <?= icon('grades', 18) ?>
+            </div>
+            <h3 class="quick-card__title">Grade Ledger</h3>
+            <p class="quick-card__desc">Enter term marks, verify averages, and calculate final GPAs.</p>
+            <span class="quick-card__link">
+                <span>Open Gradebook</span>
+                <?= icon('arrow-right', 13) ?>
+            </span>
+        </a>
+
+        <a class="quick-card quick-card--amber" href="<?= e(url('announcements/index.php')) ?>">
+            <div class="quick-card__icon-wrap">
+                <?= icon('announcement', 18) ?>
+            </div>
+            <h3 class="quick-card__title">Campus Bulletins</h3>
+            <p class="quick-card__desc">Draft, broadcast, and archive notices for faculty & students.</p>
+            <span class="quick-card__link">
+                <span>Read Notices</span>
+                <?= icon('arrow-right', 13) ?>
+            </span>
+        </a>
+    </section>
+
+    <!-- Main Workspace (2-Column Grid: Tables & Charts on left, Widgets & Feeds on right) -->
+    <div class="dash-workspace">
+        <!-- Left Main Column -->
+        <div class="dash-workspace__left">
+
+            <!-- Enrollment and academic performance overview -->
+            <section class="dash-card">
+                <div class="dash-card__header">
+                    <div>
+                        <h2 class="dash-card__title">Performance Overview</h2>
+                        <p class="dash-card__sub">Monthly enrollment activity and overall pass rate</p>
+                    </div>
+                    <span class="chart-period"><?= e($year) ?> · <?= e($semester) ?></span>
+                </div>
+                <div class="dash-card__body performance-body">
+                    <div class="performance-summary">
+                        <span class="performance-summary__label">Overall pass rate</span>
+                        <strong><?= e(number_format($passRate, 1)) ?><small>%</small></strong>
+                        <span class="performance-summary__note"><i aria-hidden="true"></i> Grades A–C · <?= e(number_format($gradeTotal)) ?> marks</span>
+                    </div>
+                    <?php render_area_chart($monthlyEnrollments, 'Monthly enrollment activity'); ?>
+                </div>
+            </section>
+
+            <!-- Retain the academic-year trend from the previous dashboard. -->
+            <section class="dash-card">
+                <div class="dash-card__header">
+                    <div>
+                        <h2 class="dash-card__title">Enrollment Activity</h2>
+                        <p class="dash-card__sub">Registrations across academic years</p>
+                    </div>
+                    <span class="chart-period"><?= e((string) count($trend)) ?> academic years</span>
+                </div>
+                <div class="dash-card__body">
                     <p class="dash-chart-value"><?= e(format_number($aYearTotal)) ?></p>
                     <p class="dash-chart-meta">
                         <?php if ($isCurrentYear): ?>
@@ -332,197 +400,292 @@ layout_start('Dashboard', 'dashboard');
                         <?php elseif ($growth !== null && $growth < 0): ?>
                             <span class="stat__delta stat__delta--down"><?= e(number_format($growth, 1)) ?>%</span>
                         <?php endif; ?>
-                        total enrollments, <?= e((string) count($trend)) ?> academic years
+                        total enrollments recorded
                     </p>
+                    <?php render_line_chart($trend, ['empty' => 'Enrollments will appear here as they are recorded.']); ?>
                 </div>
-                <span class="linechart__legend"><span class="linechart__key"></span>Enrollments</span>
-            </div>
-            <?php render_line_chart($trend, ['empty' => 'Enrollments will appear here as they are recorded.']); ?>
-        </div>
-    </section>
+            </section>
 
-    <div class="dash-side">
-        <section class="panel">
-            <div class="panel__head">
-                <div class="panel__titles">
-                    <h2 class="panel__title">Student distribution</h2>
-                    <p class="panel__sub">Active students by faculty</p>
-                </div>
-            </div>
-            <div class="panel__body">
-                <?php render_donut_chart($facultyDonut, [
-                    'center' => format_number($totals['students_active']),
-                    'label'  => 'active students',
-                    'empty'  => 'No active students have been recorded yet.',
-                ]); ?>
-            </div>
-        </section>
-
-        <section class="panel">
-            <div class="panel__head">
-                <div class="panel__titles">
-                    <h2 class="panel__title">Academic outcome</h2>
-                    <p class="panel__sub">A to C counts as a pass</p>
-                </div>
-            </div>
-            <div class="panel__body">
-                <?php render_circle_metric($passRate, 'Pass rate', 'Average mark ' . number_format($gradeAverage, 1)); ?>
-            </div>
-        </section>
-    </div>
-</div>
-
-<div class="dash-lower">
-    <section class="panel">
-        <div class="panel__head">
-            <div class="panel__titles">
-                <h2 class="panel__title">Recent enrollments</h2>
-                <p class="panel__sub">The latest records added to the register</p>
-            </div>
-            <a class="panel__action btn btn--quiet btn--sm" href="<?= e(url('enrollments/index.php')) ?>">View all</a>
-        </div>
-        <div class="panel__body panel__body--flush">
-            <?php if ($recentEnrollments === []): ?>
-                <?php render_empty_state('enrollment', 'No enrollments yet', 'Enrollments appear here as soon as they are recorded.'); ?>
-            <?php else: ?>
-                <div class="tablewrap" style="border:0;box-shadow:none;border-radius:0">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Student</th>
-                                <th scope="col">Course</th>
-                                <th scope="col">Term</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php foreach ($recentEnrollments as $row): ?>
-                            <tr>
-                                <td>
-                                    <span class="table__person">
-                                        <?= render_avatar($row['first_name'], $row['last_name'], url('students/view.php?id=' . urlencode((string) $row['student_no']))) ?>
-                                        <span class="table__persontext">
-                                            <a class="table__name" href="<?= e(url('students/view.php?id=' . urlencode($row['student_no']))) ?>">
-                                                <?= e(full_name($row['first_name'], $row['last_name'])) ?>
-                                            </a>
-                                            <span class="table__sub table__id"><?= e($row['student_no']) ?></span>
-                                        </span>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="cellstack">
-                                        <strong><?= e($row['course_code']) ?></strong>
-                                        <span><?= e($row['course_name']) ?></span>
-                                    </span>
-                                </td>
-                                <td class="nowrap">
-                                    <span class="cellstack">
-                                        <strong><?= e($row['academic_year']) ?></strong>
-                                        <span><?= e($row['semester']) ?></span>
-                                    </span>
-                                </td>
-                                <td><?= badge($row['status']) ?></td>
-                                <td class="nowrap text-2"><?= e(format_db_date($row['enrollment_date'])) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
-    </section>
-
-    <div class="dash-side">
-        <section class="panel">
-            <div class="panel__head">
-                <div class="panel__titles">
-                    <h2 class="panel__title">Notice board</h2>
-                    <p class="panel__sub">Published announcements</p>
-                </div>
-                <a class="panel__action btn btn--quiet btn--sm" href="<?= e(url('announcements/index.php')) ?>">All</a>
-            </div>
-            <div class="panel__body">
-                <?php if ($recentAnnouncements === []): ?>
-                    <?php render_empty_state('announcement', 'Nothing published', 'Published announcements will be listed here.'); ?>
-                <?php else: ?>
-                    <div class="timeline">
-                        <?php foreach ($recentAnnouncements as $row): ?>
-                            <article class="timeline__item">
-                                <div class="timeline__body">
-                                    <p class="timeline__title">
-                                        <a href="<?= e(url('announcements/view.php?id=' . (int) $row['id'])) ?>"><?= e($row['title']) ?></a>
-                                    </p>
-                                    <p class="timeline__meta">
-                                        <?= e(time_ago($row['published_at'])) ?> &middot; <?= e($row['full_name']) ?>
-                                    </p>
-                                </div>
-                            </article>
-                        <?php endforeach; ?>
+            <!-- Latest Enrollments Table (like Recent Transactions in reference) -->
+            <section class="dash-card">
+                <div class="dash-card__header">
+                    <div>
+                        <h2 class="dash-card__title">Recent Enrollments</h2>
+                        <p class="dash-card__sub">Latest course registration activity</p>
                     </div>
-                <?php endif; ?>
-            </div>
-        </section>
+                    <a class="dash-card__action" href="<?= e(url('enrollments/index.php')) ?>">
+                        <span>View all</span>
+                        <?= icon('arrow-right', 13) ?>
+                    </a>
+                </div>
+                <div class="dash-card__body dash-card__body--flush">
+                    <?php if ($recentEnrollments === []): ?>
+                        <?php render_empty_state('enrollment', 'No enrollments recorded', 'Recent enrollments will show here.'); ?>
+                    <?php else: ?>
+                        <div class="tablewrap tablewrap--borderless">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Student</th>
+                                        <th scope="col">Course Details</th>
+                                        <th scope="col">Term</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($recentEnrollments as $row): ?>
+                                    <tr>
+                                        <td>
+                                            <div class="table__person">
+                                                <?= render_avatar($row['first_name'], $row['last_name'], url('students/view.php?id=' . urlencode((string) $row['student_no']))) ?>
+                                                <div class="table__persontext">
+                                                    <a class="table__name" href="<?= e(url('students/view.php?id=' . urlencode($row['student_no']))) ?>">
+                                                        <?= e(full_name($row['first_name'], $row['last_name'])) ?>
+                                                    </a>
+                                                    <span class="table__sub"><?= e($row['student_no']) ?></span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="cellstack">
+                                                <strong><?= e($row['course_code']) ?></strong>
+                                                <span><?= e($row['course_name']) ?></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="cellstack">
+                                                <span><?= e($row['academic_year']) ?></span>
+                                                <small class="text-3"><?= e($row['semester']) ?></small>
+                                            </div>
+                                        </td>
+                                        <td><?= badge($row['status']) ?></td>
+                                        <td class="nowrap text-3"><?= e(format_db_date($row['enrollment_date'])) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
 
-        <section class="panel">
-            <div class="panel__head">
-                <div class="panel__titles">
-                    <h2 class="panel__title">This month</h2>
-                    <p class="panel__sub">Enrollment dates in <?= e(date('F Y')) ?></p>
+            <!-- Most Recently Registered Students -->
+            <section class="dash-card">
+                <div class="dash-card__header">
+                    <div>
+                        <h2 class="dash-card__title">Most Recently Registered</h2>
+                        <p class="dash-card__sub">Latest additions to the university student body</p>
+                    </div>
+                    <a class="dash-card__action" href="<?= e(url('students/index.php')) ?>">
+                        <span>All students</span>
+                        <?= icon('arrow-right', 13) ?>
+                    </a>
+                </div>
+                <div class="dash-card__body dash-card__body--flush">
+                    <div class="tablewrap tablewrap--borderless">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Student</th>
+                                    <th scope="col">Student ID</th>
+                                    <th scope="col">Intake Year</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" class="actions">File</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($recentStudents as $row): ?>
+                                <tr>
+                                    <td>
+                                        <div class="table__person">
+                                            <?= render_avatar($row['first_name'], $row['last_name']) ?>
+                                            <div class="table__persontext">
+                                                <a class="table__name" href="<?= e(url('students/view.php?id=' . urlencode($row['student_no']))) ?>">
+                                                    <?= e(full_name($row['first_name'], $row['last_name'])) ?>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><code class="code-pill"><?= e($row['student_no']) ?></code></td>
+                                    <td><?= e((string) $row['enrollment_year']) ?></td>
+                                    <td><?= badge($row['status']) ?></td>
+                                    <td class="actions">
+                                        <a class="btn btn--quiet btn--sm" href="<?= e(url('students/view.php?id=' . urlencode($row['student_no']))) ?>">
+                                            <span>Open</span>
+                                            <?= icon('arrow-right', 12) ?>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Aside Column -->
+        <aside class="dash-workspace__right">
+
+            <!-- University Card Mockup (Inspired directly by the Pacbuck Card in the reference!) -->
+            <div class="campus-card-widget">
+                <div class="campus-card-widget__card">
+                    <div class="campus-card-widget__top">
+                        <span class="campus-card-widget__chip"></span>
+                        <span class="campus-card-widget__brand">HAGMAH CMS</span>
+                    </div>
+                    <div class="campus-card-widget__number">•••• •••• •••• <?= e(substr((string) ($user['id'] ?? '1000'), -4)) ?></div>
+                    <div class="campus-card-widget__bottom">
+                        <div>
+                            <span class="campus-card-widget__label">OFFICIAL INTAKE</span>
+                            <span class="campus-card-widget__holder"><?= e($user['full_name'] ?? 'Registrar Staff') ?></span>
+                        </div>
+                        <div class="campus-card-widget__badge"><?= icon('shield', 14) ?> Active</div>
+                    </div>
+                </div>
+                <div class="campus-card-widget__meta">
+                    <h4>Student Identification Card</h4>
+                    <p>Digital verification credential with encrypted academic hash.</p>
+                    <a class="btn btn--sm btn--primary btn--block" href="<?= e(url('students/index.php')) ?>">
+                        <?= icon('student', 15) ?>
+                        <span>Manage Student Cards</span>
+                    </a>
                 </div>
             </div>
-            <div class="panel__body">
-                <?php render_mini_calendar((int) date('Y'), (int) date('n'), $eventDays); ?>
-            </div>
-        </section>
-    </div>
-</div>
 
-<section class="panel mt-3">
-    <div class="panel__head">
-        <div class="panel__titles">
-            <h2 class="panel__title">Most recently registered</h2>
-            <p class="panel__sub">Students added to the register most recently</p>
-        </div>
-        <a class="panel__action btn btn--quiet btn--sm" href="<?= e(url('students/index.php')) ?>">All students</a>
+            <!-- Active Students by Faculty -->
+            <section class="dash-card">
+                <div class="dash-card__header">
+                    <div>
+                        <h2 class="dash-card__title">Active by Faculty</h2>
+                        <p class="dash-card__sub">Enrollment distribution</p>
+                    </div>
+                    <a class="dash-card__action" href="<?= e(url('faculties/index.php')) ?>">View</a>
+                </div>
+                <div class="dash-card__body">
+                    <?php
+                    render_bar_chart($facultyChart, [
+                        'max'   => $maxFaculty,
+                        'noun'  => 'student',
+                        'empty' => 'No faculties recorded.',
+                    ]);
+                    ?>
+                </div>
+            </section>
+
+            <section class="dash-card">
+                <div class="dash-card__header">
+                    <div>
+                        <h2 class="dash-card__title">Student Distribution</h2>
+                        <p class="dash-card__sub">Active students across faculties</p>
+                    </div>
+                </div>
+                <div class="dash-card__body">
+                    <?php render_donut_chart($facultyDonut, [
+                        'center' => format_number($totals['students_active']),
+                        'label'  => 'active students',
+                        'empty'  => 'No active students have been recorded yet.',
+                    ]); ?>
+                </div>
+            </section>
+
+            <!-- Monthly columns reuse the dashboard's fetched enrollment totals. -->
+            <section class="dash-card">
+                <div class="dash-card__header">
+                    <div>
+                        <h2 class="dash-card__title">Enrollment Volume</h2>
+                        <p class="dash-card__sub">Recent monthly activity</p>
+                    </div>
+                    <span class="chart-period">Last 8 months</span>
+                </div>
+                <div class="dash-card__body">
+                    <?php render_monthly_enrollment_chart($monthlyEnrollments, $totals['enrollments']); ?>
+                </div>
+            </section>
+
+            <!-- Grade Distribution -->
+            <section class="dash-card">
+                <div class="dash-card__header">
+                    <div>
+                        <h2 class="dash-card__title">Grade Distribution</h2>
+                        <p class="dash-card__sub">All recorded marks</p>
+                    </div>
+                    <a class="dash-card__action" href="<?= e(url('grades/index.php')) ?>">Ledger</a>
+                </div>
+                <div class="dash-card__body">
+                    <?php render_grade_donut($distribution, $gradeTotal, $passRate); ?>
+
+                    <div class="dash-divider"></div>
+
+                    <?php
+                    render_figures([
+                        ['value' => number_format($gradeAverage, 2), 'label' => 'Average mark'],
+                        ['value' => $passRate . '%', 'label' => 'Pass rate (A to C)'],
+                        ['value' => number_format($gradeTotal), 'label' => 'Marks recorded'],
+                    ]);
+                    ?>
+                </div>
+            </section>
+
+            <!-- Latest Published Announcements -->
+            <section class="dash-card">
+                <div class="dash-card__header">
+                    <div>
+                        <h2 class="dash-card__title">Campus Notices</h2>
+                        <p class="dash-card__sub">Published announcements</p>
+                    </div>
+                    <a class="dash-card__action" href="<?= e(url('announcements/index.php')) ?>">All</a>
+                </div>
+                <div class="dash-card__body">
+                    <?php if ($recentAnnouncements === []): ?>
+                        <?php render_empty_state('announcement', 'Nothing published', 'Published notices appear here.'); ?>
+                    <?php else: ?>
+                        <div class="notices-timeline">
+                            <?php foreach ($recentAnnouncements as $row): ?>
+                                <article class="notices-item">
+                                    <div class="notices-item__indicator"></div>
+                                    <div class="notices-item__content">
+                                        <h4 class="notices-item__title">
+                                            <a href="<?= e(url('announcements/view.php?id=' . (int) $row['id'])) ?>"><?= e($row['title']) ?></a>
+                                        </h4>
+                                        <p class="notices-item__meta">
+                                            <?= e(time_ago($row['published_at'])) ?> &middot; <?= e($row['full_name']) ?>
+                                        </p>
+                                    </div>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+
+            <section class="dash-card">
+                <div class="dash-card__header">
+                    <div>
+                        <h2 class="dash-card__title">This Month</h2>
+                        <p class="dash-card__sub">Enrollment dates in <?= e(date('F Y')) ?></p>
+                    </div>
+                </div>
+                <div class="dash-card__body">
+                    <?php render_mini_calendar((int) date('Y'), (int) date('n'), $eventDays); ?>
+                </div>
+            </section>
+
+            <!-- Help / Support Card (Matching "Need Help? 24/7" in Pacbuck Reference) -->
+            <div class="help-card">
+                <div class="help-card__icon"><?= icon('headphones', 22) ?></div>
+                <h4 class="help-card__title">Need Registrar Support?</h4>
+                <p class="help-card__sub">Academic operations, grade disputes, and database records support is active.</p>
+                <a class="btn btn--block btn--sm btn--primary" href="mailto:registrar@hagmah.edu">
+                    <?= icon('mail', 15) ?>
+                    <span>Contact Registrar Desk</span>
+                </a>
+            </div>
+
+        </aside>
     </div>
-    <div class="panel__body panel__body--flush">
-        <div class="tablewrap" style="border:0;box-shadow:none;border-radius:0">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Student</th>
-                        <th scope="col">Reference</th>
-                        <th scope="col">Intake</th>
-                        <th scope="col">Status</th>
-                        <th scope="col" class="actions">Record</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($recentStudents as $row): ?>
-                    <tr>
-                        <td>
-                            <span class="table__person">
-                                <?= render_avatar($row['first_name'], $row['last_name']) ?>
-                                <span class="table__persontext">
-                                    <a class="table__name" href="<?= e(url('students/view.php?id=' . urlencode($row['student_no']))) ?>">
-                                        <?= e(full_name($row['first_name'], $row['last_name'])) ?>
-                                    </a>
-                                </span>
-                            </span>
-                        </td>
-                        <td class="table__id"><?= e($row['student_no']) ?></td>
-                        <td><?= e((string) $row['enrollment_year']) ?></td>
-                        <td><?= badge($row['status']) ?></td>
-                        <td class="actions">
-                            <a class="btn btn--sm" href="<?= e(url('students/view.php?id=' . urlencode($row['student_no']))) ?>">Open</a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
+
+</div>
 
 <?php layout_end(['scripts' => ['assets/js/charts.js']]); ?>

@@ -17,8 +17,11 @@ function render_footer(): void
     <footer class="footer">
         <p class="footer__left">
             <span class="footer__mark"><?= brand_mark(16) ?></span>
-            <?= e(APP_NAME) ?> · <?= e(APP_TAGLINE) ?>
+            © <?= e(date('Y')) ?> <?= e(APP_NAME) ?> · <?= e(APP_TAGLINE) ?>
         </p>
+        <nav class="footer__links" aria-label="Footer links">
+            <a href="mailto:registrar@hagmah.edu">Contact</a>
+        </nav>
         <p class="footer__right">
             Build <span class="mono"><?= e(APP_VERSION) ?></span>
             <span class="footer__dot" aria-hidden="true">·</span>
